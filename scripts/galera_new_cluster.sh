@@ -8,14 +8,7 @@
 VERSION="@VERSION@@MYSQL_SERVER_SUFFIX@"
 COMPILATION_COMMENT="@COMPILATION_COMMENT@"
 
-<<<<<<< HEAD
 systemctl set-environment _WSREP_NEW_CLUSTER='--wsrep-new-cluster' && \
     systemctl start ${1:-mariadb}
 
 systemctl set-environment _WSREP_NEW_CLUSTER=''
-=======
-/usr/bin/systemctl set-environment _WSREP_NEW_CLUSTER='--wsrep-new-cluster' && \
-     /usr/bin/systemctl start {1:-mariadb@service}
-
-/usr/bin/systemctl set-environment _WSREP_NEW_CLUSTER=''
->>>>>>> 7d6ea7b... MDEV-427: systemd - use galera_new_cluster instead of bootstrap
