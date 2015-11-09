@@ -79,6 +79,7 @@ IF(UNIX)
   IF(HAVE_SYSTEMD)
     CONFIGURE_FILE(mariadb.service.in
                    ${CMAKE_CURRENT_BINARY_DIR}/mariadb.service @ONLY)
+<<<<<<< HEAD
     INSTALL(FILES use_galera_new_cluster.conf
             ${CMAKE_CURRENT_BINARY_DIR}/mariadb.service
             DESTINATION ${inst_location}/systemd COMPONENT SupportFiles)
@@ -89,6 +90,14 @@ IF(UNIX)
       CONFIGURE_FILE(mariadb@.service.in
                      ${CMAKE_CURRENT_BINARY_DIR}/mariadb@.service @ONLY)
       INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/mariadb@.service
+=======
+    IF(CMAKE_VERSION VERSION_LESS 3.3.0)
+      CONFIGURE_FILE(mariadb@.service.in
+                     ${CMAKE_CURRENT_BINARY_DIR}/mariadb@.service @ONLY)
+      INSTALL(FILES use_galera_new_cluster.conf
+              ${CMAKE_CURRENT_BINARY_DIR}/mariadb.service
+              ${CMAKE_CURRENT_BINARY_DIR}/mariadb@.service
+>>>>>>> 7d6ea7b... MDEV-427: systemd - use galera_new_cluster instead of bootstrap
               DESTINATION ${inst_location}/systemd COMPONENT SupportFiles)
     ENDIF()
 

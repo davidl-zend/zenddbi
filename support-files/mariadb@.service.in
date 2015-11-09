@@ -61,6 +61,10 @@ PermissionsStartOnly=true
 # This isn't a replacement for my.cnf.
 # _WSREP_NEW_CLUSTER is for the exclusive use of the script galera_new_cluster
 
+<<<<<<< HEAD
+=======
+ExecStart=
+>>>>>>> 7d6ea7b... MDEV-427: systemd - use galera_new_cluster instead of bootstrap
 ExecStart=/usr/sbin/mysqld $MYSQLD_OPTS $_WSREP_NEW_CLUSTER --defaults-file=@INSTALL_SYSCONF2DIR@/my%I.cnf
 # Alternate: (remove ConditionPathExists above)
 # use [mysqld.INSTANCENAME] as sections in my.cnf
