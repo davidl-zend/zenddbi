@@ -152,7 +152,8 @@
   when built with -arch ppc64. Complains:
   warning: 'transparent_union' attribute ignored
 */
-#if defined(__GNUC__) && !defined(__cplusplus) && \
+//ZD-5 - disable transparent union to prevent compile warnings about volatility
+#if FALSE && defined(__GNUC__) && !defined(__cplusplus) && \
       ! (defined(__APPLE__) && (defined(_ARCH_PPC64) ||defined (_ARCH_PPC) ||defined (_POWER)))
 /*
   we want to be able to use my_atomic_xxx functions with
