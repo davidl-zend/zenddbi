@@ -104,10 +104,10 @@ make package
 
 echo Adding dependent libraries to archive...
 #Extracting library to temporary directory
-cp mariadb-10.1.10-os400-powerpc.tar.gz /tmp
-pushd /tmp && rm -rf /tmp/mariadb-10.1.10-os400-powerpc
-tar xzf mariadb-10.1.10-os400-powerpc.tar.gz && cp /usr/zlocal/zenddbi/mariadb-libdeps/* mariadb-10.1.10-os400-powerpc/lib
-tar -cf mariadb_i5os_install.tar mariadb-10.1.10-os400-powerpc/
+cp mariadb-10.1.12-os400-powerpc.tar.gz /tmp
+pushd /tmp && rm -rf /tmp/mariadb-10.1.12-os400-powerpc
+tar xzf mariadb-10.1.12-os400-powerpc.tar.gz && cp /usr/zlocal/zenddbi/mariadb-libdeps/* mariadb-10.1.12-os400-powerpc/lib
+tar -cf mariadb_i5os_install.tar mariadb-10.1.12-os400-powerpc/
 echo Packaging mariadb...
 system MARIADBPCK
 echo Mariadb is packaged at QGPL/ZMYSQL
