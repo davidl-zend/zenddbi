@@ -6,7 +6,7 @@ export M4=/usr/local/bin/m4
 echo $PATH |grep freeware || export PATH=/opt/freeware/bin:$PATH
 cmake . -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_CXX_FLAGS_DEBUG="-O0 -g -mminimal-toc -mcpu=power6 -Wno-attributes" \
-    -DCMAKE_C_FLAGS_DEBUG="-O0 -g -mminimal-toc -mcpu=power6 -Wno-attributes" \
+    -DCMAKE_C_FLAGS_DEBUG="-O0 -g -mminimal-toc -mcpu=power6" \
     -DCMAKE_EXE_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
     -DCMAKE_MODULE_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
     -DCMAKE_SHARED_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
