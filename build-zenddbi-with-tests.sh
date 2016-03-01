@@ -5,8 +5,8 @@ export M4=/usr/local/bin/m4
 #Use perzl binaries where available
 echo $PATH |grep freeware || export PATH=/opt/freeware/bin:$PATH
 cmake . -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_CXX_FLAGS_DEBUG="-O0 -g -mminimal-toc -mcpu=power6 -Wno-attributes" \
-    -DCMAKE_C_FLAGS_DEBUG="-O0 -g -mminimal-toc -mcpu=power6" \
+    -DCMAKE_CXX_FLAGS_DEBUG="-O0 -g -mminimal-toc -Wno-attributes" \
+    -DCMAKE_C_FLAGS_DEBUG="-O0 -g -mminimal-toc -Wno-attributes" \
     -DCMAKE_EXE_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
     -DCMAKE_MODULE_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
     -DCMAKE_SHARED_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
@@ -109,5 +109,5 @@ pushd /tmp && rm -rf /tmp/mariadb-10.1.12-os400-powerpc
 tar xzf mariadb-10.1.12-os400-powerpc.tar.gz && cp /usr/zlocal/zenddbi/mariadb-libdeps/* mariadb-10.1.12-os400-powerpc/lib
 tar -cf mariadb_i5os_install.tar mariadb-10.1.12-os400-powerpc/
 echo Packaging mariadb...
-system MARIADBPCK
+system "CALL PGM(QGPL/MARIADBPCK) PARM('2')"
 echo Mariadb is packaged at QGPL/ZMYSQL
