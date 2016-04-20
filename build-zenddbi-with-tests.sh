@@ -10,6 +10,8 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_EXE_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
     -DCMAKE_MODULE_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
     -DCMAKE_SHARED_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
+    -DWITH_SAFEMALLOC=NO \
+    -DEFAULT_SYSCONFDIR=/usr/local/mariadb/bin \
     -DCMAKE_INSTALL_PREFIX=/usr/local/mariadb \
     -DMYSQL_DATADIR=/usr/local/mariadbdata \
     -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \
@@ -108,6 +110,6 @@ cp mariadb-10.1.12-os400-powerpc.tar.gz /tmp
 pushd /tmp && rm -rf /tmp/mariadb-10.1.12-os400-powerpc
 tar xzf mariadb-10.1.12-os400-powerpc.tar.gz && cp /usr/zlocal/zenddbi/mariadb-libdeps/* mariadb-10.1.12-os400-powerpc/lib
 tar -cf mariadb_i5os_install.tar mariadb-10.1.12-os400-powerpc/
-echo Packaging mariadb...
-system "CALL PGM(QGPL/MARIADBPCK) PARM('2')"
-echo Mariadb is packaged at QGPL/ZMYSQL
+#echo Packaging mariadb...
+#system "CALL PGM(QGPL/MARIADBPCK) PARM('2')"
+#echo Mariadb is packaged at QGPL/ZMYSQL
