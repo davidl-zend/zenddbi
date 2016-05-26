@@ -43,7 +43,7 @@ OF SUCH DAMAGE.
 */
 
 #ifdef USE_PRAGMA_IMPLEMENTATION
-#pragma implementation        // gcc: Class implementation
+//#pragma implementation        // gcc: Class implementation
 #endif
 
 #include "ha_ibmdb2i.h"
@@ -53,6 +53,14 @@ OF SUCH DAMAGE.
 #include "db2i_charsetSupport.h"
 #include <sys/utsname.h>
 #include "db2i_safeString.h"
+
+//*Replace include of mysql_priv.h with direct includes according to 5.6 api *//
+//#include <my_base.h>
+//#include "hash.h"
+//#include <m_ctype.h>
+//#include "my_sys.h"
+//#include "structs.h"
+
 
 static const char __NOT_NULL_VALUE_EBCDIC = 0xF0; // '0'
 static const char __NULL_VALUE_EBCDIC = 0xF1; // '1'
@@ -404,7 +412,7 @@ IBMDB2I_SHARE *ha_ibmdb2i::get_share(const char *table_name, TABLE *table)
 
 error:
   pthread_mutex_destroy(&share->mutex);
-  my_free((uchar*) share, MYF(0));
+  my_free((uchar*) share);
   pthread_mutex_unlock(&ibmdb2i_mutex);
 
   return NULL;
@@ -423,7 +431,8 @@ int ha_ibmdb2i::free_share(IBMDB2I_SHARE *share)
     hash_delete(&ibmdb2i_open_tables, (uchar*) share);
     thr_lock_delete(&share->lock);
     pthread_mutex_destroy(&share->mutex);
-    my_free(share, MYF(0));
+    //my_free(share, MYF(0));
+    my_free(shareF);
     pthread_mutex_unlock(&ibmdb2i_mutex);
     return 1;
   }
@@ -579,9 +588,9 @@ ha_ibmdb2i::~ha_ibmdb2i()
   DBUG_ASSERT(activeReferences == 0 || outstanding_start_bulk_insert);
     
   if (indexHandles)
-    my_free(indexHandles, MYF(0));
+    my_free(indexHandles);
   if (indexReadSizeEstimates)
-    my_free(indexReadSizeEstimates, MYF(0));
+    my_free(indexReadSizeEstimates);
   
   cleanupBuffers();
 }

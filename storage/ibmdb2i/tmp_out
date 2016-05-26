@@ -1,0 +1,297 @@
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -H/home/QSECOFR/server -B/home/QSECOFR/server --check-build-system CMakeFiles/Makefile.cmake 0
+Re-run cmake file: Makefile older than: sql-bench/cmake_install.cmake
+-- Running cmake version 2.8.12.1
+-- MariaDB 10.1.12
+-- Packaging as: mariadb-10.1.12-OS400-powerpc
+-- OPENSSL_INCLUDE_DIR = /usr/include
+-- OPENSSL_LIBRARIES = /usr/lib/libssl.a
+-- CRYPTO_LIBRARY = /usr/lib/libcrypto.a
+-- OPENSSL_MAJOR_VERSION = 
+-- SSL_LIBRARIES = /usr/lib/libssl.a;/usr/lib/libcrypto.a
+-- checking for one of the modules 'libsystemd;libsystemd-daemon'
+-- Systemd features not enabled
+-- Mroonga doesn't support on big-endian
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/QSECOFR/server
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_progress_start /home/QSECOFR/server/CMakeFiles /home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/progress.marks
+cd /home/QSECOFR/server && make -f CMakeFiles/Makefile2 storage/ibmdb2i/all
+make[1]: Entering directory '/home/QSECOFR/server'
+make -f strings/CMakeFiles/strings.dir/build.make strings/CMakeFiles/strings.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/strings /home/QSECOFR/server /home/QSECOFR/server/strings /home/QSECOFR/server/strings/CMakeFiles/strings.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f strings/CMakeFiles/strings.dir/build.make strings/CMakeFiles/strings.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'strings/CMakeFiles/strings.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  79 80 81 82 83
+[  5%] Built target strings
+make -f zlib/CMakeFiles/zlib.dir/build.make zlib/CMakeFiles/zlib.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/zlib /home/QSECOFR/server /home/QSECOFR/server/zlib /home/QSECOFR/server/zlib/CMakeFiles/zlib.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f zlib/CMakeFiles/zlib.dir/build.make zlib/CMakeFiles/zlib.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'zlib/CMakeFiles/zlib.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  99 100
+[  7%] Built target zlib
+make -f mysys_ssl/CMakeFiles/mysys_ssl.dir/build.make mysys_ssl/CMakeFiles/mysys_ssl.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/mysys_ssl /home/QSECOFR/server /home/QSECOFR/server/mysys_ssl /home/QSECOFR/server/mysys_ssl/CMakeFiles/mysys_ssl.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f mysys_ssl/CMakeFiles/mysys_ssl.dir/build.make mysys_ssl/CMakeFiles/mysys_ssl.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'mysys_ssl/CMakeFiles/mysys_ssl.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[  7%] Built target mysys_ssl
+make -f mysys/CMakeFiles/mysys.dir/build.make mysys/CMakeFiles/mysys.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/mysys /home/QSECOFR/server /home/QSECOFR/server/mysys /home/QSECOFR/server/mysys/CMakeFiles/mysys.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f mysys/CMakeFiles/mysys.dir/build.make mysys/CMakeFiles/mysys.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'mysys/CMakeFiles/mysys.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  34 35 36 37 38 39 40 41 42 43 44 45
+[ 21%] Built target mysys
+make -f dbug/CMakeFiles/dbug.dir/build.make dbug/CMakeFiles/dbug.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/dbug /home/QSECOFR/server /home/QSECOFR/server/dbug /home/QSECOFR/server/dbug/CMakeFiles/dbug.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f dbug/CMakeFiles/dbug.dir/build.make dbug/CMakeFiles/dbug.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'dbug/CMakeFiles/dbug.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[ 21%] Built target dbug
+make -f extra/CMakeFiles/comp_err.dir/build.make extra/CMakeFiles/comp_err.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/extra /home/QSECOFR/server /home/QSECOFR/server/extra /home/QSECOFR/server/extra/CMakeFiles/comp_err.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f extra/CMakeFiles/comp_err.dir/build.make extra/CMakeFiles/comp_err.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'extra/CMakeFiles/comp_err.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[ 21%] Built target comp_err
+make -f extra/CMakeFiles/GenError.dir/build.make extra/CMakeFiles/GenError.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/extra /home/QSECOFR/server /home/QSECOFR/server/extra /home/QSECOFR/server/extra/CMakeFiles/GenError.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f extra/CMakeFiles/GenError.dir/build.make extra/CMakeFiles/GenError.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'extra/CMakeFiles/GenError.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[ 21%] Built target GenError
+make -f sql/CMakeFiles/partition.dir/build.make sql/CMakeFiles/partition.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server/sql/CMakeFiles/partition.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f sql/CMakeFiles/partition.dir/build.make sql/CMakeFiles/partition.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'sql/CMakeFiles/partition.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[ 21%] Built target partition
+make -f pcre/CMakeFiles/pcre.dir/build.make pcre/CMakeFiles/pcre.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/pcre /home/QSECOFR/server /home/QSECOFR/server/pcre /home/QSECOFR/server/pcre/CMakeFiles/pcre.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f pcre/CMakeFiles/pcre.dir/build.make pcre/CMakeFiles/pcre.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'pcre/CMakeFiles/pcre.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  46 47 48
+[ 25%] Built target pcre
+make -f storage/csv/CMakeFiles/csv.dir/build.make storage/csv/CMakeFiles/csv.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/storage/csv /home/QSECOFR/server /home/QSECOFR/server/storage/csv /home/QSECOFR/server/storage/csv/CMakeFiles/csv.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f storage/csv/CMakeFiles/csv.dir/build.make storage/csv/CMakeFiles/csv.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'storage/csv/CMakeFiles/csv.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[ 25%] Built target csv
+make -f storage/heap/CMakeFiles/heap.dir/build.make storage/heap/CMakeFiles/heap.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/storage/heap /home/QSECOFR/server /home/QSECOFR/server/storage/heap /home/QSECOFR/server/storage/heap/CMakeFiles/heap.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f storage/heap/CMakeFiles/heap.dir/build.make storage/heap/CMakeFiles/heap.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'storage/heap/CMakeFiles/heap.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  15 16 17
+[ 28%] Built target heap
+make -f storage/myisam/CMakeFiles/myisam.dir/build.make storage/myisam/CMakeFiles/myisam.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/storage/myisam /home/QSECOFR/server /home/QSECOFR/server/storage/myisam /home/QSECOFR/server/storage/myisam/CMakeFiles/myisam.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f storage/myisam/CMakeFiles/myisam.dir/build.make storage/myisam/CMakeFiles/myisam.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'storage/myisam/CMakeFiles/myisam.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  21 22 23 24 25 26
+[ 35%] Built target myisam
+make -f storage/maria/CMakeFiles/aria.dir/build.make storage/maria/CMakeFiles/aria.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/storage/maria /home/QSECOFR/server /home/QSECOFR/server/storage/maria /home/QSECOFR/server/storage/maria/CMakeFiles/aria.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f storage/maria/CMakeFiles/aria.dir/build.make storage/maria/CMakeFiles/aria.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'storage/maria/CMakeFiles/aria.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  1 2 3 4 5 6 7 8
+[ 44%] Built target aria
+make -f storage/myisammrg/CMakeFiles/myisammrg.dir/build.make storage/myisammrg/CMakeFiles/myisammrg.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/storage/myisammrg /home/QSECOFR/server /home/QSECOFR/server/storage/myisammrg /home/QSECOFR/server/storage/myisammrg/CMakeFiles/myisammrg.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f storage/myisammrg/CMakeFiles/myisammrg.dir/build.make storage/myisammrg/CMakeFiles/myisammrg.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'storage/myisammrg/CMakeFiles/myisammrg.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  27 28 29
+[ 47%] Built target myisammrg
+make -f sql/CMakeFiles/gen_lex_hash.dir/build.make sql/CMakeFiles/gen_lex_hash.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server/sql/CMakeFiles/gen_lex_hash.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f sql/CMakeFiles/gen_lex_hash.dir/build.make sql/CMakeFiles/gen_lex_hash.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'sql/CMakeFiles/gen_lex_hash.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[ 47%] Built target gen_lex_hash
+make -f sql/CMakeFiles/GenServerSource.dir/build.make sql/CMakeFiles/GenServerSource.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server/sql/CMakeFiles/GenServerSource.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f sql/CMakeFiles/GenServerSource.dir/build.make sql/CMakeFiles/GenServerSource.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'sql/CMakeFiles/GenServerSource.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[ 47%] Built target GenServerSource
+make -f storage/perfschema/CMakeFiles/perfschema.dir/build.make storage/perfschema/CMakeFiles/perfschema.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/storage/perfschema /home/QSECOFR/server /home/QSECOFR/server/storage/perfschema /home/QSECOFR/server/storage/perfschema/CMakeFiles/perfschema.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f storage/perfschema/CMakeFiles/perfschema.dir/build.make storage/perfschema/CMakeFiles/perfschema.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'storage/perfschema/CMakeFiles/perfschema.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  49 50 51 52 53 54 55 56
+[ 56%] Built target perfschema
+make -f storage/xtradb/CMakeFiles/xtradb.dir/build.make storage/xtradb/CMakeFiles/xtradb.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/storage/xtradb /home/QSECOFR/server /home/QSECOFR/server/storage/xtradb /home/QSECOFR/server/storage/xtradb/CMakeFiles/xtradb.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f storage/xtradb/CMakeFiles/xtradb.dir/build.make storage/xtradb/CMakeFiles/xtradb.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'storage/xtradb/CMakeFiles/xtradb.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  86 87 88 89 90 91 92 93 94 95 96 97 98
+[ 71%] Built target xtradb
+make -f plugin/userstat/CMakeFiles/userstat.dir/build.make plugin/userstat/CMakeFiles/userstat.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/plugin/userstat /home/QSECOFR/server /home/QSECOFR/server/plugin/userstat /home/QSECOFR/server/plugin/userstat/CMakeFiles/userstat.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f plugin/userstat/CMakeFiles/userstat.dir/build.make plugin/userstat/CMakeFiles/userstat.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'plugin/userstat/CMakeFiles/userstat.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[ 71%] Built target userstat
+make -f vio/CMakeFiles/vio.dir/build.make vio/CMakeFiles/vio.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/vio /home/QSECOFR/server /home/QSECOFR/server/vio /home/QSECOFR/server/vio/CMakeFiles/vio.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f vio/CMakeFiles/vio.dir/build.make vio/CMakeFiles/vio.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'vio/CMakeFiles/vio.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  85
+[ 72%] Built target vio
+make -f sql/CMakeFiles/gen_lex_token.dir/build.make sql/CMakeFiles/gen_lex_token.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server/sql/CMakeFiles/gen_lex_token.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f sql/CMakeFiles/gen_lex_token.dir/build.make sql/CMakeFiles/gen_lex_token.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'sql/CMakeFiles/gen_lex_token.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  14
+[ 73%] Built target gen_lex_token
+make -f sql/CMakeFiles/GenDigestServerSource.dir/build.make sql/CMakeFiles/GenDigestServerSource.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server/sql/CMakeFiles/GenDigestServerSource.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f sql/CMakeFiles/GenDigestServerSource.dir/build.make sql/CMakeFiles/GenDigestServerSource.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'sql/CMakeFiles/GenDigestServerSource.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[ 73%] Built target GenDigestServerSource
+make -f sql/CMakeFiles/sql.dir/build.make sql/CMakeFiles/sql.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server/sql/CMakeFiles/sql.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f sql/CMakeFiles/sql.dir/build.make sql/CMakeFiles/sql.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'sql/CMakeFiles/sql.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78
+[ 95%] Built target sql
+make -f sql/CMakeFiles/mysqld.dir/build.make sql/CMakeFiles/mysqld.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server /home/QSECOFR/server/sql /home/QSECOFR/server/sql/CMakeFiles/mysqld.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f sql/CMakeFiles/mysqld.dir/build.make sql/CMakeFiles/mysqld.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'sql/CMakeFiles/mysqld.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[ 95%] Built target mysqld
+make -f libservices/CMakeFiles/mysqlservices.dir/build.make libservices/CMakeFiles/mysqlservices.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/libservices /home/QSECOFR/server /home/QSECOFR/server/libservices /home/QSECOFR/server/libservices/CMakeFiles/mysqlservices.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f libservices/CMakeFiles/mysqlservices.dir/build.make libservices/CMakeFiles/mysqlservices.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+make[2]: Nothing to be done for 'libservices/CMakeFiles/mysqlservices.dir/build'.
+make[2]: Leaving directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles  32 33
+[ 97%] Built target mysqlservices
+make -f storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/build.make storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend
+make[2]: Entering directory '/home/QSECOFR/server'
+cd /home/QSECOFR/server && /QOpenSys/opt/freeware/bin/cmake -E cmake_depends "Unix Makefiles" /home/QSECOFR/server /home/QSECOFR/server/storage/ibmdb2i /home/QSECOFR/server /home/QSECOFR/server/storage/ibmdb2i /home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/DependInfo.cmake --color=
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Dependee "/home/QSECOFR/server/storage/ibmdb2i/mysql_priv.h" is newer than depends file "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.internal".
+Clearing dependencies in "/home/QSECOFR/server/storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/depend.make".
+Scanning dependencies of target ibmdb2i
+make[2]: Leaving directory '/home/QSECOFR/server'
+make -f storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/build.make storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/build
+make[2]: Entering directory '/home/QSECOFR/server'
+/QOpenSys/opt/freeware/bin/cmake -E cmake_progress_report /home/QSECOFR/server/CMakeFiles 
+[ 97%] Building CXX object storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/ha_ibmdb2i.cc.o
+cd /home/QSECOFR/server/storage/ibmdb2i && /opt/freeware/bin/c++   -DHAVE_CONFIG_H -DMYSQL_DYNAMIC_PLUGIN -Dibmdb2i_EXPORTS -pie -fPIC -DWITH_INNODB_DISALLOW_WRITES -fPIC -fno-exceptions -fno-rtti -O0 -g -mminimal-toc -Wno-attributes -mcpu=power6 -DENABLED_DEBUG_SYNC -ggdb3 -DSAFE_MUTEX -Wall -Wextra -Wformat-security -Wno-init-self -Wvla -Woverloaded-virtual -Wno-unused-parameter -fPIC -I/home/QSECOFR/server/include -I/home/QSECOFR/server/sql -I/home/QSECOFR/server/pcre -I/home/QSECOFR/server/zlib -I/home/QSECOFR/server/regex -I/home/QSECOFR/server/extra/yassl/include -I/home/QSECOFR/server/include400    -o CMakeFiles/ibmdb2i.dir/ha_ibmdb2i.cc.o -c /home/QSECOFR/server/storage/ibmdb2i/ha_ibmdb2i.cc
+storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/build.make:57: recipe for target 'storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/ha_ibmdb2i.cc.o' failed
+make[2]: Leaving directory '/home/QSECOFR/server'
+CMakeFiles/Makefile2:1632: recipe for target 'storage/ibmdb2i/CMakeFiles/ibmdb2i.dir/all' failed
+make[1]: Leaving directory '/home/QSECOFR/server'
+Makefile:136: recipe for target 'all' failed

@@ -44,6 +44,11 @@ OF SUCH DAMAGE.
 #include "qmyse.h"
 #include "db2i_errors.h"
 
+//David
+//#include <sql_acl.h>
+//#include "field.h"
+//#include "sql_type.h"
+
 typedef uint64_t FILE_HANDLE;
 typedef my_thread_id CONNECTION_HANDLE;
 const char SAVEPOINT_NAME[] = {0xD4,0xE2,0xD7,0xC9,0xD5,0xE3,0xC5,0xD9,0xD5,0x0};
@@ -320,7 +325,8 @@ public:
   {
     if (likely(connErrText))
     {
-      my_free(connErrText, MYF(0)); 
+      //my_free(connErrText, MYF(0)); 
+      my_free(connErrText); 
       connErrText = NULL;
     }
   }

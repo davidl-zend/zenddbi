@@ -50,7 +50,7 @@ OF SUCH DAMAGE.
 #include "as400_protos.h"
 #include "db2i_global.h"
 #include "db2i_ileBridge.h"
-#include "builtins.h"
+//#include <builtins.h>
 #include "db2i_misc.h"
 #include "db2i_file.h"
 #include "db2i_blobCollection.h"
