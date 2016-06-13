@@ -494,8 +494,10 @@ private:
       return (current_thd->thread_id == cachedConnectionID);
   }
   
-  friend void db2i_ileBridge::unregisterPtr(ILEMemHandle);
-  friend void db2i_ileBridge::registerPtr(const void*, ILEMemHandle*);
+  //friend void db2i_ileBridge::unregisterPtr(ILEMemHandle);
+  //friend void db2i_ileBridge::registerPtr(const void*, ILEMemHandle*);
+  void unregisterPtr(ILEMemHandle);
+  void registerPtr(const void*, ILEMemHandle*);
   static uint32 registeredPtrs;
 #endif    
 };

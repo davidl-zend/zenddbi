@@ -55,6 +55,7 @@ OF SUCH DAMAGE.
 #include <time.h>
 #include <stdarg.h>
 #include <string.h>
+#include <os400msg.h>
 
 #ifndef TRUE
 #define TRUE	1

@@ -291,7 +291,8 @@ void warning(THD *thd, int errCode, ...)
   (void) my_vsnprintf (buffer, MYSQL_ERRMSG_SIZE, msg, args);
   va_end(args);
   DBUG_PRINT("warning", ("ibmdb2i warning %d: %s",errCode,buffer));
-  push_warning(thd, MYSQL_ERROR::WARN_LEVEL_WARN, errCode, buffer);
+  //push_warning(thd, MYSQL_ERROR::WARN_LEVEL_WARN, errCode, buffer);
+  push_warning(thd, Sql_condition::WARN_LEVEL_WARN, errCode, buffer);
 }
 
 

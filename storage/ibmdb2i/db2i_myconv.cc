@@ -53,6 +53,7 @@ OF SUCH DAMAGE.
 
 #include "db2i_myconv.h"
 #include "db2i_global.h"
+#include <errno.h>
 
 int32_t myconvDebug=0;
 
@@ -74,7 +75,7 @@ static MEM_ROOT dmapMemRoot;
 
 void initMyconv()
 {
-  init_alloc_root(&dmapMemRoot, 0x200, 0);
+  init_alloc_root(&dmapMemRoot, 0x200, 0, MYF(0));
 }
 
 void cleanupMyconv()

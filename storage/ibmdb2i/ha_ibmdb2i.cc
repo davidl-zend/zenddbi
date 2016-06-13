@@ -1783,7 +1783,8 @@ bool ha_ibmdb2i::get_error_message(int error, String *buf)
   {
     db2i_ileBridge* bridge = db2i_ileBridge::getBridgeForThread(ha_thd());
     char* errMsg = bridge->getErrorStorage();
-    buf->copy(errMsg, strlen(errMsg),system_charset_info);
+    //buf->copy(errMsg, strlen(errMsg),system_charset_info);
+    buf->copy(errMsg, strlen(errMsg));
     bridge->freeErrorStorage();
   }
   DBUG_RETURN(FALSE);                          
