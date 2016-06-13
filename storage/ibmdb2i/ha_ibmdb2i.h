@@ -59,7 +59,11 @@ OF SUCH DAMAGE.
 #include "db2i_ioBuffers.h"
 #include "db2i_errors.h"
 #include "db2i_sqlStatementStream.h"
-  
+
+#include <sql_table.h>
+
+#include "tgmath.h"
+
 /** @brief
   IBMDB2I_SHARE is a structure that will be shared among all open handlers.
   It is used to describe the underlying table definition, and it caches

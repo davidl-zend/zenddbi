@@ -3275,7 +3275,8 @@ double ha_ibmdb2i::scan_time()
 
 double ha_ibmdb2i::read_time(uint index, uint ranges, ha_rows rows)
 {
-  DBUG_ENTER("ha_ibmdb2i::read_time");
+  using std;
+	DBUG_ENTER("ha_ibmdb2i::read_time");
   int rc;
   uint64 idxPageCnt = 0;
   double cost;

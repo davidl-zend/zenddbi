@@ -43,6 +43,7 @@ $A1 LiJian    11/29/10    Make object name uppercase on system i.
 #define DB2I_MISC_H
 
 #include <ctype.h> //$A1
+#include "macros.h"
 
 /**
   Undelimit quote-delimited DB2 names in-place
@@ -84,7 +85,6 @@ bool convertMySQLNameToDB2Name(const char* input,
   uint o = 0;
   if (delimit)
     output[o++] = '"';    
-
   uint i = 0;
   do
   {
@@ -99,7 +99,7 @@ bool convertMySQLNameToDB2Name(const char* input,
   
   if (delimit)
     output[o++] = '"';
-  output[min(o, outlen-1)] = 0; // This isn't the most user-friendly way to handle overflows,
+    output[min(o, outlen-1)] = 0; // This isn't the most user-friendly way to handle overflows,
                                   // but at least its safe.
   return (o <= outlen-1);
 }
