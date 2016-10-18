@@ -45,6 +45,7 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
     -DPLUGIN_WSREP_INFO=NO \
     -DPLUGIN_SPIDER=NO \
     -DPLUGIN_XTRADB=STATIC \
+    -DPLUGIN_INNOBASE=NO \
     -DPLUGIN_CONNECT=NO \
     -DPLUGIN_AUTH_PAM=NO \
     -DDISABLE_SHARED=OFF \
@@ -106,10 +107,10 @@ make package
 
 echo Adding dependent libraries to archive...
 #Extracting library to temporary directory
-cp mariadb-10.1.12-os400-powerpc.tar.gz /tmp
+cp mariadb-10.1.19-os400-powerpc.tar.gz /tmp
 pushd /tmp && rm -rf /tmp/mariadb-10.1.12-os400-powerpc
-tar xzf mariadb-10.1.12-os400-powerpc.tar.gz && cp /usr/zlocal/zenddbi/mariadb-libdeps/* mariadb-10.1.12-os400-powerpc/lib
-tar -cf mariadb_i5os_install.tar mariadb-10.1.12-os400-powerpc/
+tar xzf mariadb-10.1.19-os400-powerpc.tar.gz && cp /usr/zlocal/zenddbi/mariadb-libdeps/* mariadb-10.1.12-os400-powerpc/lib
+tar -cf mariadb_i5os_install.tar mariadb-10.1.19-os400-powerpc/
 #echo Packaging mariadb...
 #system "CALL PGM(QGPL/MARIADBPCK) PARM('2')"
 #echo Mariadb is packaged at QGPL/ZMYSQL
