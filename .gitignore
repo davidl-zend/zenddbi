@@ -466,3 +466,4 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+storage/ibmdb2i
