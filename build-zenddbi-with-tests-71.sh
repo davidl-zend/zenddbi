@@ -57,18 +57,6 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
     -DCURSES_INCLUDE_PATH=/usr/include \
     -DCURSES_LIBRARY=/usr/lib/libcurses.a \
     -DCURSES_NCURSES_LIBRARY=/usr/lib/libncurses.a
-    #-DCURSES_NCURSES_LIBRARY= \
-    #-DREADLINE_INCLUDE_DIR= \
-    #-DREADLINE_LIBRARY= \
-    # // Path to a file.
-    #    -DCURSES_CURSES_H_PATH= \
-    #-DCURSES_CURSES_LIBRARY= \
-    #-DCURSES_EXTRA_LIBRARY=CURSES_EXTRA_LIBRARY-NOTFOUND \
-    #-DCURSES_FORM_LIBRARY= \
-    #-DCURSES_HAVE_CURSES_H= \
-    #-DCURSES_INCLUDE_PATH= \
-    #-DCURSES_LIBRARY= \
-
     # READLINE_INCLUDE_DIR:PATH=/usr/include/readline
     #
     # // Path to a library.
@@ -103,12 +91,3 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
 make
 make package
 
-echo Adding dependent libraries to archive...
-#Extracting library to temporary directory
-cp mariadb-10.1.19-os400-powerpc.tar.gz /tmp
-pushd /tmp && rm -rf /tmp/mariadb-10.1.19-os400-powerpc
-tar xzf mariadb-10.1.19-os400-powerpc.tar.gz && cp /usr/zlocal/zenddbi/mariadb-libdeps/* mariadb-10.1.19-os400-powerpc/lib
-tar -cf mariadb_i5os_install.tar mariadb-10.1.19-os400-powerpc/
-echo Packaging mariadb...
-system "CALL PGM(QGPL/MARIADBPCK) PARM('1')"
-echo Mariadb is packaged at QGPL/ZMYSQL
