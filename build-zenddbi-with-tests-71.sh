@@ -1,5 +1,6 @@
 echo Building Mariadb
 #pushd ~/server
+export LDR_CNTRL=MAXDATA=0x8000000 
 export LDFLAGS="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpall -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc"
 export M4=/usr/local/bin/m4
 #Use perzl binaries where available
@@ -56,7 +57,8 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
     -DCURSES_HAVE_CURSES_H=/usr/include/curses.h \
     -DCURSES_INCLUDE_PATH=/usr/include \
     -DCURSES_LIBRARY=/usr/lib/libcurses.a \
-    -DCURSES_NCURSES_LIBRARY=/usr/lib/libncurses.a
+    -DCURSES_NCURSES_LIBRARY=/usr/lib/libncurses.a \
+    -DMYSQL_UNIX_ADDR=/usr/local/mariadbdata/mariadb.sock
     # READLINE_INCLUDE_DIR:PATH=/usr/include/readline
     #
     # // Path to a library.
@@ -88,6 +90,6 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
     #
 
 
-make
+#make
 make package
 
