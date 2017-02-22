@@ -83,7 +83,7 @@ IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 ENDIF()
 
 # Enable InnoDB's UNIV_DEBUG and UNIV_SYNC_DEBUG in debug builds
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DUNIV_DEBUG -DUNIV_SYNC_DEBUG")
+#SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DUNIV_DEBUG -DUNIV_SYNC_DEBUG")
 
 # Add -Wconversion if compiling with GCC
 ## As of Mar 15 2011 this flag causes 3573+ warnings. If you are reading this

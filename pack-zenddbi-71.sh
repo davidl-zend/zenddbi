@@ -1,3 +1,4 @@
+#!/QOpenSys/usr/bin/bash
 ZENDDBI_SRC_DIR=/usr/src/zenddbi
 VERSION=$1
 VERSION=10.1.21
@@ -20,4 +21,4 @@ gtar xzf mariadb-${VERSION}-os400-powerpc.tar.gz && cp /usr/zlocal/zenddbi/maria
 tar -cf mariadb_i5os_install.tar mariadb-${VERSION}-os400-powerpc/
 echo Packaging mariadb...
 system "CALL PGM(QGPL/MARIADBPCK) PARM('1')"
-echo Mariadb is packaged at QGPL/ZMYSQL
+echo Mariadb is packaged at QGPL/ZDBISAVF10

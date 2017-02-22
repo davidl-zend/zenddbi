@@ -1,12 +1,18 @@
+#!/QOpenSys/usr/bin/bash
 echo Building Mariadb
 #pushd ~/server
-export LDR_CNTRL=MAXDATA=0x8000000 
+ZENDDBI_SRC_DIR=/usr/src/zenddbi
+#export LDR_CNTRL=MAXDATA=0x8000000 
 export LDFLAGS="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpall -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc"
 export M4=/usr/local/bin/m4
 #Use perzl binaries where available
 echo $PATH |grep freeware || export PATH=/opt/freeware/bin:$PATH
-cmake . -DCMAKE_BUILD_TYPE=Debug \
+pushd $ZENDDBI_SRC_DIR
+#cmake . -DCMAKE_BUILD_TYPE=Debug \
+cmake . -DCMAKE_BUILD_TYPE=Relwithdebinfo \
+    -DCMAKE_CXX_FLAGS="-mminimal-toc -Wno-attributes -mcpu=power6 -malign-power -malign-natural" \
     -DCMAKE_CXX_FLAGS_DEBUG="-O0 -g -mminimal-toc -Wno-attributes -mcpu=power6 -malign-power -malign-natural" \
+    -DCMAKE_C_FLAGS="-mminimal-toc -Wno-attributes -mcpu=power6" \
     -DCMAKE_C_FLAGS_DEBUG="-O0 -g -mminimal-toc -Wno-attributes -mcpu=power6" \
     -DCMAKE_EXE_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
     -DCMAKE_MODULE_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
@@ -15,6 +21,8 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
     -DMYSQL_DATADIR=/usr/local/mariadbdata \
     -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \
     -DCMAKE_INSTALL_RPATH=/usr/local/mariadb/lib \
+    -DENABLE_DEBUG_SYNC=ON \
+    -DWITH_SAFEMALLOC=OFF \
     -DWITH_EMBEDDED_SERVER=OFF \
     -DWITH_UNIT_TESTS=OFF \
     -DINSTALL_MYSQLTESTDIR=mysql-test \
@@ -44,6 +52,7 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
     -DPLUGIN_WSREP_INFO=NO \
     -DPLUGIN_SPIDER=NO \
     -DPLUGIN_XTRADB=STATIC \
+    -DPLUGIN_INNOBASE=NO \
     -DPLUGIN_CONNECT=NO \
     -DPLUGIN_AUTH_PAM=NO \
     -DDISABLE_SHARED=OFF \
@@ -58,7 +67,7 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
     -DCURSES_INCLUDE_PATH=/usr/include \
     -DCURSES_LIBRARY=/usr/lib/libcurses.a \
     -DCURSES_NCURSES_LIBRARY=/usr/lib/libncurses.a \
-    -DMYSQL_UNIX_ADDR=/usr/local/mariadbdata/mariadb.sock
+    -DINSTALL_UNIX_ADDRDIR=/usr/local/mariadbdata/mariadb.sock \
     # READLINE_INCLUDE_DIR:PATH=/usr/include/readline
     #
     # // Path to a library.
@@ -92,4 +101,4 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
 
 #make
 make package
-
+popd
