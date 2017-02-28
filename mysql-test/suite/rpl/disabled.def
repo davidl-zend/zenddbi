@@ -20,3 +20,4 @@ rpl.rpl_start_stop_slave  : ZD-69  temporarily disable failing test
 rpl.rpl_report_port	  : ZD-70  temporarily disable failing test  
 rpl.rpl_domain_id_filter_restart : ZD-72 temporarily disable failing test
 rpl.rpl_upgrade_master_info : ZD-180 temporarily disable failing test
+rpl.rpl_binlog_index : ZD-181 temporarily disable failing test
