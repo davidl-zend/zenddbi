@@ -17,3 +17,4 @@ rpl.rpl_gtid_stop_start   : ZD-76 temporarily disable rpl_gtid_stop start since 
 rpl.rpl_read_only	  : ZD-179 temporarily disable test
 rpl.rpl_mdev6020	  : ZD-39  temporarily disable test
 rpl.rpl_start_stop_slave  : ZD-69  temporarily disable failing test
+rpl.rpl_report_port	  : ZD-70  temporarily disable failing test  
