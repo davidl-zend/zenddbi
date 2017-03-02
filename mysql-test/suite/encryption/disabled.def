@@ -24,3 +24,5 @@ encryption.innodb_encryption_is : ZD-192 disable failing test
 encryption.innochecksum : ZD-193 disable failing test
 encryption.innodb-bad-key-change : ZD-194 disable failing test
 encryption.innodb-discard-import : ZD-195 disable failing test
+encryption.innodb-discard-import-change : ZD-196 disable failing test
+
