@@ -21,3 +21,5 @@ encryption.innodb-missing-key : ZD-189 disable failing test
 encryption.innodb_encryption_row_compressed : ZD-190 disable failing test
 encryption.innodb_encryption_filekeys : ZD-191 disable failing test
 encryption.innodb_encryption_is : ZD-192 disable failing test
+encryption.innochecksum : ZD-193 disable failing test
+encryption.innodb-bad-key-change : ZD-194 disable failing test
