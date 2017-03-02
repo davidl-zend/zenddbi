@@ -27,4 +27,5 @@ encryption.innodb-discard-import : ZD-195 disable failing test
 encryption.innodb-discard-import-change : ZD-196 disable failing test
 encryption.innodb-encr-threads : ZD-197 disable failing test
 encryption.innodb-encryption-alter : ZD-198 disable failing test
+encryption.innodb-page_encryption : ZD-199 disable failing test
 
