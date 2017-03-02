@@ -17,3 +17,4 @@ encryption.innodb-page_encryption-32k : ZD-185 disable failing test
 encryption.innodb_first_page : ZD-186 disable failing test
 encryption.innodb-log-encrypt : ZD-187 disable failing test
 encryption.innodb-page_encryption_log_encryption : ZD-188 disable failing test
+encryption.innodb-missing-key : ZD-189 disable failing test
