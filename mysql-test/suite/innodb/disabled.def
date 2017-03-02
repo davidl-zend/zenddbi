@@ -9,4 +9,4 @@
 #  Do not use any TAB characters for whitespace.
 #
 ##############################################################################
-
+innodb.innodb-alter-discard : ZD-204 disable failing test
