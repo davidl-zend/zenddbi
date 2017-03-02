@@ -19,3 +19,4 @@ encryption.innodb-log-encrypt : ZD-187 disable failing test
 encryption.innodb-page_encryption_log_encryption : ZD-188 disable failing test
 encryption.innodb-missing-key : ZD-189 disable failing test
 encryption.innodb_encryption_row_compressed : ZD-190 disable failing test
+encryption.innodb_encryption_filekeys : ZD-191 disable failing test
