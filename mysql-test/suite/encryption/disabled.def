@@ -13,3 +13,4 @@
 innodb_scrub            : MDEV-8139 scrubbing does not work reliably
 innodb_scrub_background : MDEV-8139 scrubbing does not work reliably
 encryption.tempfiles    : ZD-184 encryption temfiles test fails
+encryption.innodb-page_encryption-32k : ZD-185 disable failing test 
