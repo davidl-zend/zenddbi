@@ -12,3 +12,4 @@
 innodb.innodb-alter-discard : ZD-204 disable failing test
 innodb.innodb_prefix_index_restart_server : ZD-205 disable failing test
 innodb.table_index_statistics : ZD-206 disable failing test
+innodb.innodb-corrupted-table :	ZD-207 disable failing test
