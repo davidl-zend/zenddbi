@@ -29,4 +29,5 @@ encryption.innodb-encr-threads : ZD-197 disable failing test
 encryption.innodb-encryption-alter : ZD-198 disable failing test
 encryption.innodb-page_encryption : ZD-199 disable failing test
 encryption.innodb_page_encryption_key_change : ZD-200 disable failing test
+encryption.aria_tiny : ZD-201 disable failing test
 
