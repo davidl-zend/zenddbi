@@ -14,11 +14,13 @@ rpl_spec_variables        : BUG#11755836 2009-10-27 jasonh rpl_spec_variables fa
 rpl_get_master_version_and_clock : Bug#11766137 Jan 05 2011 joro Valgrind warnings rpl_get_master_version_and_clock
 rpl_partition_archive     : MDEV-5077 2013-09-27 svoj Cannot exchange partition with archive table
 rpl.rpl_gtid_stop_start   : ZD-76 temporarily disable rpl_gtid_stop start since it freezes
-rpl.rpl_read_only	  : ZD-179 temporarily disable test
-rpl.rpl_mdev6020	  : ZD-39  temporarily disable test
-rpl.rpl_start_stop_slave  : ZD-69  temporarily disable failing test
-rpl.rpl_report_port	  : ZD-70  temporarily disable failing test  
-rpl.rpl_domain_id_filter_restart : ZD-72 temporarily disable failing test
+rpl.rpl_heartbeat_basic	  : ZD-182 temporarily disable failing test
+rpl.rpl_binlog_index	  : ZD-181 temporarily disable failing test
 rpl.rpl_upgrade_master_info : ZD-180 temporarily disable failing test
-rpl.rpl_binlog_index : ZD-181 temporarily disable failing test
-rpl.rpl_heartbeat_basic : ZD-182 temporarily disable failing test
+rpl.rpl_read_only : ZD-179 temporarily disable failing test
+rpl.rpl_domain_id_filter_restart : ZD-72 temporarily disable failing test
+rpl.rpl_gtid_crash_myisam : ZD-71 temporarily disable failing test
+rpl.rpl_report_port : ZD-79 temporarily disable failing test
+rpl.rpl_start_stop_slave : ZD-69 temporarily disable failing test
+rpl.rpl_mdev6020 : ZD-68 temporarily disable failing test
+
