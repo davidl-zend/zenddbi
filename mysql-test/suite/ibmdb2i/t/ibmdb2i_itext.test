@@ -1,0 +1,4 @@
+CREATE TABLE itext (i text) engine=ibmdb2i;
+insert into itext (i) values('ABC');
+insert into itext (i) values('12345678901234567890123456789012345678901234567890');
+select * from itext;

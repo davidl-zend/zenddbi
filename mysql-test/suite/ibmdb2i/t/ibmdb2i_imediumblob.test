@@ -1,0 +1,6 @@
+CREATE TABLE imediumblob (i mediumblob) engine=ibmdb2i;
+insert into imediumblob (i) values(x'DEADBEEF');
+insert into imediumblob (i) values(x'BADC0FFEE0DDF00D');
+insert into imediumblob (i) values('ABC');
+select HEX(i) from imediumblob;
+

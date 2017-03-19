@@ -1,0 +1,4 @@
+CREATE TABLE iyear (i year) engine=ibmdb2i
+insert into iyear (i) values(1990);
+insert into iyear (i) values('2012')
+select * from iyear;

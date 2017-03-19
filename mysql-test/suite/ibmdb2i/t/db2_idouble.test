@@ -1,0 +1,4 @@
+CREATE TABLE idouble (i double) engine=ibmdb2i;
+insert into idouble (i) values(-9999.99);
+insert into idouble (i) values(87769999.99);
+select * from idouble;

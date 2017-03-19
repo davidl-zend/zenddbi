@@ -1,0 +1,5 @@
+CREATE TABLE ibin (i binary(10)) engine=ibmdb2i;
+insert into ibin (i) values('12345678901');
+insert into ibin (i) values(xDEADBEEF);
+insert into ibin (i) values(x'BADC0FFEE0DDF00D');
+select HEX(i) from ibin;

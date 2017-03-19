@@ -1,0 +1,3 @@
+CREATE TABLE ivarbin (i varbinary(10)) engine=ibmdb2i;
+insert into ivarbin (i) values(x'BADC0FFEE0DDF00D');
+select HEX(i) from ivarbin;

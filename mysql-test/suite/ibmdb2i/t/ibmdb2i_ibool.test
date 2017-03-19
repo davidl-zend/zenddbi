@@ -1,0 +1,4 @@
+CREATE TABLE ibool (i boolean) engine=ibmdb2i;
+insert into ibool (i) values(TRUE); 
+insert into ibool (i) values(FALSE);
+select * from ibool;

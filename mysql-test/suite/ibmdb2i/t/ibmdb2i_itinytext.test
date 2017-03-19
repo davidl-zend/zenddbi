@@ -1,0 +1,4 @@
+CREATE TABLE itinytext (i tinytext) engine=ibmdb2i;
+insert into itinytext (i) values('A');
+insert into itinytext (i) values('AB');
+select * from itinytext;

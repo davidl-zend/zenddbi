@@ -1,0 +1,3 @@
+CREATE TABLE ichar10 (i char(10)) engine=ibmdb2i;
+insert into ichar10 (i) values('MariaDB');
+select * from ichar10;

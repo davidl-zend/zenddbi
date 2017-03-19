@@ -1,0 +1,4 @@
+CREATE TABLE ifloat (i float) engine=ibmdb2i;
+insert into ifloat (i) values(-9999.99);
+insert into ifloat (i) values(99999.99);
+select * from ifloat;

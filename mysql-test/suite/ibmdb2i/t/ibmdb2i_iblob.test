@@ -1,0 +1,5 @@
+CREATE TABLE iblob (i blob) engine=ibmdb2i;
+insert into iblob (i) values('ABC');
+insert into iblob (i) values(b'1111111111111');
+insert into iblob (i) values(x'DEADBEEF');
+select HEX(i) from iblob;

@@ -1,0 +1,3 @@
+CREATE TABLE ipack (i decimal(10,2), u decimal(10,2) unsigned) engine=ibmdb2i;
+insert into ibig (i,u) values(12345678.91,12345678.91);
+select * from ipack;

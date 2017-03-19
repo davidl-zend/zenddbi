@@ -1,0 +1,3 @@
+CREATE TABLE ivarchar (i varchar(10)) engine=ibmdb2i;
+insert into ivarchar (i) values('Maria   ');
+select * from ivarchar;

@@ -1,0 +1,4 @@
+CREATE TABLE idatetime (i datetime) engine=ibmdb2i;
+insert into idatetime (i) values("2011-03-11");
+insert into idatetime (i) values("2012-04-19 13:08:22");
+select * from idatetime;

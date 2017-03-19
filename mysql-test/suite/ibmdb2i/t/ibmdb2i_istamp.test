@@ -1,0 +1,3 @@
+CREATE TABLE istamp (i timestamp) engine=ibmdb2i;
+insert into istamp (i) values("2012-04-19 13:08:22");
+select * from istamp;

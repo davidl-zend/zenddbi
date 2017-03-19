@@ -1,0 +1,5 @@
+CREATE TABLE imediumtext (i mediumtext) engine=ibmdb2i;
+insert into imediumtext (i) values('ABC');
+insert into imediumtext (i) values('12345678901234567890123456789012345678901234567890');
+select * from imediumtext;
+

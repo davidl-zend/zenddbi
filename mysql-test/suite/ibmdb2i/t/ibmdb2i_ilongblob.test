@@ -1,0 +1,5 @@
+CREATE TABLE ilongblob (i longblob) engine=ibmdb2i
+insert into ilongblob (i) values('ABC');
+insert into ilongblob (i) values(x'BADC0FFEE0DDF00D');
+insert into ilongblob (i) values(x'DEADBEEF');
+select HEX(i) from ilongblob

@@ -1,0 +1,4 @@
+CREATE TABLE itinyblob (i tinyblob) engine=ibmdb2i
+insert into itinyblob (i) values(x'DEADBEEF');
+insert into itinyblob (i) values('ABC');
+select HEX(i) from itinyblob;

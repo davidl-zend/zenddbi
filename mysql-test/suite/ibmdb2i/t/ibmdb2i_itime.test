@@ -1,0 +1,4 @@
+CREATE TABLE itime (i time) engine=ibmdb2i;
+insert into itime (i) values('9:6:3');
+insert into itime (i) values(151413);
+select * from itime;

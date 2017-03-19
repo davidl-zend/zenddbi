@@ -1,0 +1,5 @@
+--source suite/ibmdb2i/inc/load_ibmdb2i_plugin.inc
+
+CREATE TABLE itiny (i tinyint, u tinyint unsigned) engine=ibmdb2i;
+insert into itiny (i,u) values(127,255);
+select * from itiny; 

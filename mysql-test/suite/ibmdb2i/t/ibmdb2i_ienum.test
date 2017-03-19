@@ -1,0 +1,5 @@
+CREATE TABLE ienum (i enum('bob','sally','jodi','tony','sue')) engine=ibmdb2i;
+insert into ienum (i) values('tony');
+insert into ienum (i) values('sue');
+select * from ienum;
+

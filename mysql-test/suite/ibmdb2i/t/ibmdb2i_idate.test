@@ -1,0 +1,5 @@
+CREATE TABLE idate (i date) engine=ibmdb2i;
+insert into idate (i) values("2010-01-12");
+insert into idate (i) values('120314');
+insert into idate (i) values('13*04*21');
+select * from idate;

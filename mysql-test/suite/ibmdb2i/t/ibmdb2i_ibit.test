@@ -1,0 +1,4 @@
+CREATE TABLE ibit (i bit(8)) engine=ibmdb2i;
+insert into ibit (i) values(b'11111111');
+insert into ibit (i) values(b'01010101');
+select i+0, HEX(i), OCT(i), BIN(i) from ibit;
