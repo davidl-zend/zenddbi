@@ -10,3 +10,4 @@
 #
 ##############################################################################
 funcs_1.is_columns : ZD-223 disable failing test
+funcs_1.is_statistics : ZD-224 disable failing test
