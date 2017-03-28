@@ -31,3 +31,4 @@ innodb-log-encrypt : ZD-187 disable failing test
 innodb_first_page	: ZD-186 disable failing test
 innodb-page_encryption-32k : ZD-185 disable failing test
 encryption.tempfiles	: ZD-184 disable failing test
+encryption.innodb-read-only : ZD-221 disable failing test
