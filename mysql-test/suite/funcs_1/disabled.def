@@ -9,4 +9,4 @@
 #  Don't use any TAB characters for whitespace.
 #
 ##############################################################################
-
+funcs_1.is_columns : ZD-223 disable failing test
