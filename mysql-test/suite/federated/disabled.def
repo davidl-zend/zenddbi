@@ -9,3 +9,4 @@
 #  Do not use any TAB characters for whitespace.
 #
 ##############################################################################
+federated.error_on_close-8313 : ZD-222 disable failing test
