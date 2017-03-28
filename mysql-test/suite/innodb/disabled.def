@@ -15,3 +15,4 @@ innodb.table_index_statistics : ZD-206 disable failing test
 innodb.innodb-corrupted-table :	ZD-207 disable failing test
 innodb.innodb-mdev-7513	      : ZD-209 disable failing test
 innodb.innodb_bug53756	      : ZD-225 disable failing test
+innodb.alter_key_block_size-11757 : ZD-226 disable failing test
