@@ -1,0 +1,1 @@
+innodb_fts.crash_recovery : ZD-230 disable failing test
