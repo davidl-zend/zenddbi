@@ -1,24 +1,43 @@
+#!/QOpenSys/usr/bin/bash
 echo Building Mariadb
-pushd ~/server
-export export LDFLAGS="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-b64 -Wl,-bexpall,-Wno-attributes -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc"
-cmake . -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_CXX_FLAGS_DEBUG="-O0 -g -mminimal-toc -mcpu=power7 -Wno-attributes -Wl,-bmaxdata:0x80000000" \
-    -DCMAKE_C_FLAGS_DEBUG="-O0 -g -mminimal-toc -mcpu=power7 -Wno-attributes -Wl,-bmaxdata:0x80000000" \
+#pushd ~/server
+ZENDDBI_SRC_DIR=/usr/src/zenddbi
+#export LDR_CNTRL=MAXDATA=0x8000000 
+export LDFLAGS="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpall -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc"
+export M4=/usr/local/bin/m4
+#Use perzl binaries where available
+echo $PATH |grep freeware || export PATH=/opt/freeware/bin:$PATH
+pushd $ZENDDBI_SRC_DIR
+#cmake . -DCMAKE_BUILD_TYPE=Debug \
+#cmake . -DCMAKE_BUILD_TYPE=Relwithdebinfo \
+cmake . -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_CXX_FLAGS="-mminimal-toc -Wno-attributes -mcpu=power6 -malign-power -malign-natural" \
+    -DCMAKE_CXX_FLAGS_DEBUG="-O0 -g -mminimal-toc -Wno-attributes -mcpu=power6 -malign-power -malign-natural" \
+    -DCMAKE_C_FLAGS="-mminimal-toc -Wno-attributes -mcpu=power6" \
+    -DCMAKE_C_FLAGS_DEBUG="-O0 -g -mminimal-toc -Wno-attributes -mcpu=power6" \
+    -DCMAKE_EXE_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
+    -DCMAKE_MODULE_LINKER_FLAGS="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
+    -DCMAKE_MODULE_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
+    -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
+    -DCMAKE_SHARED_LINKER_FLAGS_DEBUG="-Wl,-blibpath:/usr/local/mariadb/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000 -Wl,-bexpfull -Wl,-bnoipath -Wl,-bbigtoc" \
     -DCMAKE_INSTALL_PREFIX=/usr/local/mariadb \
     -DMYSQL_DATADIR=/usr/local/mariadbdata \
     -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \
     -DCMAKE_INSTALL_RPATH=/usr/local/mariadb/lib \
+    -DENABLE_DEBUG_SYNC=OFF \
+    -DWITH_SAFEMALLOC=OFF \
     -DWITH_EMBEDDED_SERVER=OFF \
     -DWITH_UNIT_TESTS=OFF \
-    -DINSTALL_MYSQLTESTDIR= \
+    -DINSTALL_MYSQLTESTDIR=mysql-test \
     -DPLUGIN_FEEDBACK=DYNAMIC \
+    -DPLUGIN_EXAMPLE=AUTO \
     -DPLUGIN_FILE_KEY_MANAGEMENT=NO \
     -DPLUGIN_FTEXAMPLE=DYNAMIC \
     -DPLUGIN_HANDLERSOCKET=DYNAMIC \
     -DPLUGIN_LOCALES=DYNAMIC \
     -DPLUGIN_METADATA_LOCK_INFO=DYNAMIC \
     -DPLUGIN_MYSQL_CLEAR_PASSWORD=DYNAMIC \
-    -DPLUGIN_PERFSCHEMA=NO \
+    -DPLUGIN_PERFSCHEMA=AUTO \
     -DPLUGIN_QA_AUTH_CLIENT=DYNAMIC \
     -DPLUGIN_QA_AUTH_INTERFACE=DYNAMIC \
     -DPLUGIN_QA_AUTH_SERVER=DYNAMIC \
@@ -32,10 +51,17 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
     -DPLUGIN_SPHINX=NO \
     -DPLUGIN_SQL_ERRLOG=DYNAMIC \
     -DPLUGIN_TEST_SQL_DISCOVERY=DYNAMIC \
-    -DPLUGIN_WSREP_INFO=DYNAMIC \
+    -DWITH_WSREP=NO \
+    -DPLUGIN_WSREP_INFO=NO \
+    -DPLUGIN_SPIDER=NO \
     -DPLUGIN_XTRADB=STATIC \
+    -DPLUGIN_INNOBASE=NO \
+    -DPLUGIN_CONNECT=NO \
+    -DPLUGIN_AUTH_PAM=NO \
     -DDISABLE_SHARED=OFF \
+    -DPLUGIN_FEDERATED=NO \
     -DWITH_READLINE=OFF \
+    -DPLUGIN_IBMDB2I=DYNAMIC \
     -DCURSES_CURSES_H_PATH=/usr/include \
     -DCURSES_CURSES_LIBRARY=/usr/lib/libcurses.a \
     -DCURSES_EXTRA_LIBRARY=CURSES_EXTRA_LIBRARY-NOTFOUND \
@@ -43,19 +69,8 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
     -DCURSES_HAVE_CURSES_H=/usr/include/curses.h \
     -DCURSES_INCLUDE_PATH=/usr/include \
     -DCURSES_LIBRARY=/usr/lib/libcurses.a \
-    -DCURSES_NCURSES_LIBRARY=/usr/lib/libncurses.a
-    #-DCURSES_NCURSES_LIBRARY= \
-    #-DREADLINE_INCLUDE_DIR= \
-    #-DREADLINE_LIBRARY= \
-    # // Path to a file.
-    #    -DCURSES_CURSES_H_PATH= \
-    #-DCURSES_CURSES_LIBRARY= \
-    #-DCURSES_EXTRA_LIBRARY=CURSES_EXTRA_LIBRARY-NOTFOUND \
-    #-DCURSES_FORM_LIBRARY= \
-    #-DCURSES_HAVE_CURSES_H= \
-    #-DCURSES_INCLUDE_PATH= \
-    #-DCURSES_LIBRARY= \
-
+    -DCURSES_NCURSES_LIBRARY=/usr/lib/libncurses.a \
+    -DINSTALL_UNIX_ADDRDIR=/usr/local/mariadbdata/mariadb.sock \
     # READLINE_INCLUDE_DIR:PATH=/usr/include/readline
     #
     # // Path to a library.
@@ -87,16 +102,6 @@ cmake . -DCMAKE_BUILD_TYPE=Debug \
     #
 
 
-make
+#make
 make package
-
-echo Adding dependent libraries to archive...
-#gzip -d mariadb-10.1.8-os400-powerpc.tar.gz && cp mariadb-10.1.8-os400-powerpc.tar /tmp/mariadb_i5os_install.tar
-#Extracting library to temporary directory
-cp mariadb-10.1.8-os400-powerpc.tar.gz /tmp
-pushd /tmp && rm -rf /tmp/mariadb-10.1.8-os400-powerpc
-tar xzf mariadb-10.1.8-os400-powerpc.tar.gz && cp /usr/zlocal/zenddbi/mariadb-libdeps/* mariadb-10.1.8-os400-powerpc/lib
-tar -cf mariadb_i5os_install.tar mariadb-10.1.8-os400-powerpc/
-echo Packaging mariadb...
-system MARIADBPCK
-echo Mariadb is packaged at QGPL/ZMYSQL
+popd
