@@ -20,3 +20,4 @@ innodb.innodb_bug59641 : ZD-227 disable failing test
 innodb.read_only_recovery : ZD-228 disable failing test
 innodb.xa_recovery : ZD-229 disable failing test
 innodb.innodb-wl5522-1 : ZD-233 disable failing test
+innodb.innodb-wl5522-zip : ZD-234 disable failing test
