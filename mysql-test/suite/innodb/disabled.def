@@ -19,3 +19,4 @@ innodb.alter_key_block_size-11757 : ZD-226 disable failing test
 innodb.innodb_bug59641 : ZD-227 disable failing test
 innodb.read_only_recovery : ZD-228 disable failing test
 innodb.xa_recovery : ZD-229 disable failing test
+innodb.innodb-wl5522-1 : ZD-233 disable failing test
