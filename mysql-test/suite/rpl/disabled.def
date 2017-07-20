@@ -23,4 +23,7 @@ rpl.rpl_gtid_crash_myisam : ZD-71 temporarily disable failing test
 rpl.rpl_report_port : ZD-79 temporarily disable failing test
 rpl.rpl_start_stop_slave : ZD-69 temporarily disable failing test
 rpl.rpl_mdev6020 : ZD-68 temporarily disable failing test
-
+rpl_row_binlog_max_cache_size : MDEV-11092
+rpl_blackhole             : MDEV-11094
+rpl_row_mysqlbinlog       : MDEV-11095
+rpl_row_index_choice      : MDEV-11666

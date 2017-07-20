@@ -51,6 +51,7 @@ struct wsrep_thd_shadow {
   char                 *db;
   size_t               db_length;
   my_hrtime_t          user_time;
+  longlong             row_count_func;
 };
 
 // Global wsrep parameters
@@ -89,7 +90,6 @@ extern ulong       wsrep_running_threads;
 extern bool        wsrep_new_cluster;
 extern bool        wsrep_gtid_mode;
 extern uint32      wsrep_gtid_domain_id;
-extern bool        wsrep_dirty_reads;
 
 enum enum_wsrep_OSU_method {
     WSREP_OSU_TOI,

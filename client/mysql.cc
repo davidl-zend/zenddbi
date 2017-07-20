@@ -1,6 +1,6 @@
 /*
    Copyright (c) 2000, 2014, Oracle and/or its affiliates.
-   Copyright (c) 2009, 2016, MariaDB
+   Copyright (c) 2009, 2017, MariaDB
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -1144,6 +1144,7 @@ int main(int argc,char *argv[])
 
   outfile[0]=0;			// no (default) outfile
   strmov(pager, "stdout");	// the default, if --pager wasn't given
+
   {
     char *tmp=getenv("PAGER");
     if (tmp && strlen(tmp))
@@ -1182,7 +1183,11 @@ int main(int argc,char *argv[])
   }
   defaults_argv=argv;
   if ((status.exit_status= get_options(argc, (char **) argv)))
-    mysql_end(-1);
+  {
+    free_defaults(defaults_argv);
+    my_end(0);
+    exit(status.exit_status);
+  }
 
   if (status.batch && !status.line_buff &&
       !(status.line_buff= batch_readline_init(MAX_BATCH_BUFFER_SIZE, stdin)))
@@ -1204,7 +1209,6 @@ int main(int argc,char *argv[])
   glob_buffer.realloc(512);
   completion_hash_init(&ht, 128);
   init_alloc_root(&hash_mem_root, 16384, 0, MYF(0));
-  bzero((char*) &mysql, sizeof(mysql));
   if (sql_connect(current_host,current_db,current_user,opt_password,
 		  opt_silent))
   {
@@ -1962,7 +1966,7 @@ static int get_options(int argc, char **argv)
     connect_flag|= CLIENT_IGNORE_SPACE;
 
   if (opt_progress_reports)
-    connect_flag|= CLIENT_PROGRESS;
+    connect_flag|= CLIENT_PROGRESS_OBSOLETE;
 
   return(0);
 }
@@ -2319,8 +2323,10 @@ static bool add_line(String &buffer, char *line, ulong line_length,
       continue;
     }
 #endif
-    if (!*ml_comment && inchar == '\\' &&
-        !(*in_string && 
+    if (!*ml_comment && inchar == '\\' && *in_string != '`' &&
+        !(*in_string == '"' &&
+          (mysql.server_status & SERVER_STATUS_ANSI_QUOTES)) &&
+        !(*in_string &&
           (mysql.server_status & SERVER_STATUS_NO_BACKSLASH_ESCAPES)))
     {
       // Found possbile one character command like \c
@@ -3059,7 +3065,6 @@ static int com_server_help(String *buffer __attribute__((unused)),
   {
     unsigned int num_fields= mysql_num_fields(result);
     my_ulonglong num_rows= mysql_num_rows(result);
-    mysql_fetch_fields(result);
     if (num_fields==3 && num_rows==1)
     {
       if (!(cur= mysql_fetch_row(result)))
@@ -3493,7 +3498,6 @@ static char *fieldflags2str(uint f) {
   ff2s_check_flag(NUM);
   ff2s_check_flag(PART_KEY);
   ff2s_check_flag(GROUP);
-  ff2s_check_flag(UNIQUE);
   ff2s_check_flag(BINCMP);
   ff2s_check_flag(ON_UPDATE_NOW);
 #undef ff2s_check_flag
@@ -4646,21 +4650,25 @@ sql_real_connect(char *host,char *database,char *user,char *password,
     }
     return -1;					// Retryable
   }
-  
-  charset_info= mysql.charset;
+
+  charset_info= get_charset_by_name(mysql.charset->name, MYF(0));
+
   
   connected=1;
 #ifndef EMBEDDED_LIBRARY
-  mysql.reconnect= debug_info_flag; // We want to know if this happens
+  mysql_options(&mysql, MYSQL_OPT_RECONNECT, &debug_info_flag);
 
   /*
-    CLIENT_PROGRESS is set only if we requsted it in mysql_real_connect()
-    and the server also supports it
+    CLIENT_PROGRESS_OBSOLETE is set only if we requested it in
+    mysql_real_connect() and the server also supports it
   */
-  if (mysql.client_flag & CLIENT_PROGRESS)
+  if (mysql.client_flag & CLIENT_PROGRESS_OBSOLETE)
     mysql_options(&mysql, MYSQL_PROGRESS_CALLBACK, (void*) report_progress);
 #else
-  mysql.reconnect= 1;
+  {
+    my_bool reconnect= 1;
+    mysql_options(&mysql, MYSQL_OPT_RECONNECT, &reconnect);
+  }
 #endif
 #ifdef HAVE_READLINE
   build_completion_hash(opt_rehash, 1);
@@ -4797,10 +4805,11 @@ com_status(String *buffer __attribute__((unused)),
     tee_fprintf(stdout, "Protocol:\t\tCompressed\n");
 #endif
 
-  if ((status_str= mysql_stat(&mysql)) && !mysql_error(&mysql)[0])
+  const char *pos;
+  if ((status_str= mysql_stat(&mysql)) && !mysql_error(&mysql)[0] &&
+      (pos= strchr(status_str,' ')))
   {
     ulong sec;
-    const char *pos= strchr(status_str,' ');
     /* print label */
     tee_fprintf(stdout, "%.*s\t\t\t", (int) (pos-status_str), status_str);
     if ((status_str= str2int(pos,10,0,LONG_MAX,(long*) &sec)))
@@ -5124,17 +5133,31 @@ static const char *construct_prompt()
           processed_prompt.append("unknown");
         break;
       case 'h':
+      case 'H':
       {
-	const char *prompt;
-	prompt= connected ? mysql_get_host_info(&mysql) : "not_connected";
-	if (strstr(prompt, "Localhost"))
-	  processed_prompt.append("localhost");
-	else
-	{
-	  const char *end=strcend(prompt,' ');
-	  processed_prompt.append(prompt, (uint) (end-prompt));
-	}
-	break;
+        const char *prompt;
+        prompt= connected ? mysql_get_host_info(&mysql) : "not_connected";
+        if (strstr(prompt, "Localhost") || strstr(prompt, "localhost "))
+        {
+          if (*c == 'h')
+            processed_prompt.append("localhost");
+          else
+          {
+            static char hostname[FN_REFLEN];
+            if (hostname[0])
+              processed_prompt.append(hostname);
+            else if (gethostname(hostname, sizeof(hostname)) == 0)
+              processed_prompt.append(hostname);
+            else
+              processed_prompt.append("gethostname(2) failed");
+          }
+        }
+        else
+        {
+          const char *end=strcend(prompt,' ');
+          processed_prompt.append(prompt, (uint) (end-prompt));
+        }
+        break;
       }
       case 'p':
       {

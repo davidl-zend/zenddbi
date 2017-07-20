@@ -21,13 +21,6 @@
 #include "sql_partition.h"      /* part_id_range, partition_element */
 #include "queues.h"             /* QUEUE */
 
-enum partition_keywords
-{
-  PKW_HASH= 0, PKW_RANGE, PKW_LIST, PKW_KEY, PKW_MAXVALUE, PKW_LINEAR,
-  PKW_COLUMNS, PKW_ALGORITHM
-};
-
-
 #define PARTITION_BYTES_IN_POS 2
 
 
@@ -1009,12 +1002,6 @@ public:
   virtual uint max_supported_key_parts() const;
   virtual uint max_supported_key_length() const;
   virtual uint max_supported_key_part_length() const;
-
-  /*
-    The extra record buffer length is the maximum needed by all handlers.
-    The minimum record length is the maximum of all involved handlers.
-  */
-  virtual uint extra_rec_buf_length() const;
   virtual uint min_record_length(uint options) const;
 
   /*

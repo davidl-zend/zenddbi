@@ -1,6 +1,6 @@
 /*
    Copyright (c) 2000, 2015, Oracle and/or its affiliates.
-   Copyright (c) 2011, 2016, MariaDB
+   Copyright (c) 2011, 2017, MariaDB
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -420,6 +420,7 @@ static MYSQL *db_connect(char *host, char *database,
                          char *user, char *passwd)
 {
   MYSQL *mysql;
+  my_bool reconnect;
   if (verbose)
     fprintf(stdout, "Connecting to %s\n", host ? host : "localhost");
   if (opt_use_threads && !lock_tables)
@@ -475,7 +476,8 @@ static MYSQL *db_connect(char *host, char *database,
     ignore_errors=0;	  /* NO RETURN FROM db_error */
     db_error(mysql);
   }
-  mysql->reconnect= 0;
+  reconnect= 0;
+  mysql_options(mysql, MYSQL_OPT_RECONNECT, &reconnect);
   if (verbose)
     fprintf(stdout, "Selecting database %s\n", database);
   if (mysql_select_db(mysql, database))
@@ -675,7 +677,7 @@ int main(int argc, char **argv)
                                                  MYF(0))))
       return -2;
 
-    for (counter= 0; *argv != NULL; argv++) /* Loop through tables */
+    for (; *argv != NULL; argv++) /* Loop through tables */
     {
       pthread_mutex_lock(&counter_mutex);
       while (counter == opt_use_threads)

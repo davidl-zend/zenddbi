@@ -202,7 +202,7 @@ void mrn_get_partition_info(const char *table_name, uint table_name_length,
                             const TABLE *table, partition_element **part_elem,
                             partition_element **sub_elem)
 {
-  char tmp_name[FN_LEN];
+  char tmp_name[FN_REFLEN + 1];
   partition_info *part_info = table->part_info;
   partition_element *tmp_part_elem = NULL, *tmp_sub_elem = NULL;
   bool tmp_flg = FALSE, tmp_find_flg = FALSE;
@@ -224,9 +224,10 @@ void mrn_get_partition_info(const char *table_name, uint table_name_length,
       List_iterator<partition_element> sub_it((*part_elem)->subpartitions);
       while ((*sub_elem = sub_it++))
       {
-        create_subpartition_name(tmp_name, table->s->path.str,
-          (*part_elem)->partition_name, (*sub_elem)->partition_name,
-          NORMAL_PART_NAME);
+        if (create_subpartition_name(tmp_name, sizeof(tmp_name), table->s->path.str,
+            (*part_elem)->partition_name, (*sub_elem)->partition_name,
+          NORMAL_PART_NAME))
+          DBUG_VOID_RETURN;
         DBUG_PRINT("info", ("mroonga tmp_name=%s", tmp_name));
         if (table_name && !memcmp(table_name, tmp_name, table_name_length + 1))
           DBUG_VOID_RETURN;
@@ -243,8 +244,9 @@ void mrn_get_partition_info(const char *table_name, uint table_name_length,
         }
       }
     } else {
-      create_partition_name(tmp_name, table->s->path.str,
-        (*part_elem)->partition_name, NORMAL_PART_NAME, TRUE);
+      if (create_partition_name(tmp_name, sizeof(tmp_name), table->s->path.str,
+          (*part_elem)->partition_name, NORMAL_PART_NAME, TRUE))
+        DBUG_VOID_RETURN;
       DBUG_PRINT("info", ("mroonga tmp_name=%s", tmp_name));
       if (table_name && !memcmp(table_name, tmp_name, table_name_length + 1))
         DBUG_VOID_RETURN;
@@ -998,7 +1000,7 @@ int mrn_free_share(MRN_SHARE *share)
 
 TABLE_SHARE *mrn_get_table_share(TABLE_LIST *table_list, int *error)
 {
-  uint key_length;
+  uint key_length __attribute__((unused));
   TABLE_SHARE *share;
   THD *thd = current_thd;
   MRN_DBUG_ENTER_FUNCTION();
@@ -1015,10 +1017,7 @@ TABLE_SHARE *mrn_get_table_share(TABLE_LIST *table_list, int *error)
   share = get_table_share(thd, table_list, key, key_length, 0, error,
                           hash_value);
 #elif defined(MRN_HAVE_TDC_ACQUIRE_SHARE)
-  share = tdc_acquire_share(thd, table_list->db, table_list->table_name, key,
-                            key_length,
-                            table_list->mdl_request.key.tc_hash_value(),
-                            GTS_TABLE, NULL);
+  share = tdc_acquire_share(thd, table_list, GTS_TABLE);
 #else
   share = get_table_share(thd, table_list, key, key_length, 0, error);
 #endif

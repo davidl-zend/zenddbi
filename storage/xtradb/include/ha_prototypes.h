@@ -1,6 +1,7 @@
 /*****************************************************************************
 
 Copyright (c) 2006, 2016, Oracle and/or its affiliates. All Rights Reserved.
+Copyright (c) 2017, MariaDB Corporation.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -32,6 +33,7 @@ Created 5/11/2006 Osku Salerma
 #include "my_sys.h"
 #include "m_string.h"
 #include "my_base.h"
+#include "dur_prop.h"
 
 #ifndef UNIV_INNOCHECKSUM
 #include "mysqld_error.h"
@@ -143,7 +145,7 @@ enum durability_properties
 thd_requested_durability(
 /*=====================*/
 	const THD* thd)	/*!< in: thread handle */
-	MY_ATTRIBUTE((nonnull, warn_unused_result));
+	MY_ATTRIBUTE((warn_unused_result));
 
 /******************************************************************//**
 Returns true if the transaction this thread is processing has edited
@@ -156,6 +158,13 @@ ibool
 thd_has_edited_nontrans_tables(
 /*===========================*/
 	THD*	thd);	/*!< in: thread handle */
+
+/**
+Get high resolution timestamp for the current query start time.
+
+@retval timestamp in microseconds precision
+*/
+unsigned long long thd_query_start_micro(const MYSQL_THD thd);
 
 /*************************************************************//**
 Prints info of a THD object (== user session thread) to the given file. */

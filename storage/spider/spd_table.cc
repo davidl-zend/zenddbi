@@ -41,7 +41,6 @@
 #include "spd_direct_sql.h"
 #include "spd_malloc.h"
 
-ulong *spd_db_att_thread_id;
 #ifdef SPIDER_XID_USES_xid_cache_iterate
 #else
 #ifdef XID_CACHE_IS_SPLITTED
@@ -517,7 +516,6 @@ int spider_free_share_alloc(
 ) {
   int roop_count;
   DBUG_ENTER("spider_free_share_alloc");
-  if (share->dbton_bitmap)
   {
     for (roop_count = SPIDER_DBTON_SIZE - 1; roop_count >= 0; roop_count--)
     {
@@ -6327,8 +6325,6 @@ int spider_db_init(
 
 #ifdef _WIN32
   HMODULE current_module = GetModuleHandle(NULL);
-  spd_db_att_thread_id = (ulong *)
-    GetProcAddress(current_module, "?thread_id@@3KA");
 #ifdef SPIDER_XID_USES_xid_cache_iterate
 #else
 #ifdef XID_CACHE_IS_SPLITTED
@@ -6362,7 +6358,6 @@ int spider_db_init(
   spd_abort_loop = (bool volatile *)
     GetProcAddress(current_module, "?abort_loop@@3_NC");
 #else
-  spd_db_att_thread_id = &thread_id;
 #ifdef SPIDER_XID_USES_xid_cache_iterate
 #else
 #ifdef XID_CACHE_IS_SPLITTED
@@ -6942,7 +6937,7 @@ void spider_get_partition_info(
   partition_element **part_elem,
   partition_element **sub_elem
 ) {
-  char tmp_name[FN_LEN];
+  char tmp_name[FN_REFLEN + 1];
   partition_element *tmp_part_elem = NULL, *tmp_sub_elem = NULL;
   bool tmp_flg = FALSE, tmp_find_flg = FALSE;
   DBUG_ENTER("spider_get_partition_info");
@@ -6963,9 +6958,10 @@ void spider_get_partition_info(
       List_iterator<partition_element> sub_it((*part_elem)->subpartitions);
       while ((*sub_elem = sub_it++))
       {
-        create_subpartition_name(tmp_name, table_share->path.str,
-          (*part_elem)->partition_name, (*sub_elem)->partition_name,
-          NORMAL_PART_NAME);
+        if (create_subpartition_name(tmp_name, sizeof(tmp_name),
+            table_share->path.str, (*part_elem)->partition_name,
+            (*sub_elem)->partition_name, NORMAL_PART_NAME))
+          DBUG_VOID_RETURN;
         DBUG_PRINT("info",("spider tmp_name=%s", tmp_name));
         if (!memcmp(table_name, tmp_name, table_name_length + 1))
           DBUG_VOID_RETURN;
@@ -6981,8 +6977,10 @@ void spider_get_partition_info(
         }
       }
     } else {
-      create_partition_name(tmp_name, table_share->path.str,
-        (*part_elem)->partition_name, NORMAL_PART_NAME, TRUE);
+      if (create_partition_name(tmp_name, sizeof(tmp_name),
+          table_share->path.str, (*part_elem)->partition_name,
+          NORMAL_PART_NAME, TRUE))
+        DBUG_VOID_RETURN;
       DBUG_PRINT("info",("spider tmp_name=%s", tmp_name));
       if (!memcmp(table_name, tmp_name, table_name_length + 1))
         DBUG_VOID_RETURN;
@@ -8448,7 +8446,7 @@ int spider_discover_table_structure(
     spider_free_share_resource_only(spider_share);
 #ifdef WITH_PARTITION_STORAGE_ENGINE
   } else {
-    char tmp_name[FN_LEN];
+    char tmp_name[FN_REFLEN + 1];
     List_iterator<partition_element> part_it(part_info->partitions);
     partition_element *part_elem, *sub_elem;
     while ((part_elem = part_it++))
@@ -8459,9 +8457,10 @@ int spider_discover_table_structure(
         while ((sub_elem = sub_it++))
         {
           str.length(str_len);
-          create_subpartition_name(tmp_name, table_name,
-            (part_elem)->partition_name, (sub_elem)->partition_name,
-            NORMAL_PART_NAME);
+          if (create_subpartition_name(tmp_name, sizeof(tmp_name), table_name,
+              (part_elem)->partition_name, (sub_elem)->partition_name,
+              NORMAL_PART_NAME))
+            DBUG_RETURN(1);
           DBUG_PRINT("info",("spider tmp_name=%s", tmp_name));
           if (!(spider_share = spider_create_share(table_name, share,
             part_info,
@@ -8484,8 +8483,9 @@ int spider_discover_table_structure(
           break;
       } else {
         str.length(str_len);
-        create_partition_name(tmp_name, table_name,
-          (part_elem)->partition_name, NORMAL_PART_NAME, TRUE);
+        if (create_partition_name(tmp_name, sizeof(tmp_name), table_name,
+            (part_elem)->partition_name, NORMAL_PART_NAME, TRUE))
+          DBUG_RETURN(1);
         DBUG_PRINT("info",("spider tmp_name=%s", tmp_name));
         if (!(spider_share = spider_create_share(table_name, share,
           part_info,
@@ -8577,8 +8577,8 @@ int spider_discover_table_structure(
       DBUG_RETURN(ER_SPIDER_UNKNOWN_NUM);
     }
 #ifdef SPIDER_HAS_DISCOVER_TABLE_STRUCTURE_COMMENT
-    if (!(part_syntax = generate_partition_syntax(part_info, &part_syntax_len,
-      FALSE, TRUE, info, NULL, NULL)))
+    if (!(part_syntax = generate_partition_syntax(thd, part_info, &part_syntax_len,
+      TRUE, info, NULL)))
 #else
     if (!(part_syntax = generate_partition_syntax(part_info, &part_syntax_len,
       FALSE, TRUE, info, NULL)))
@@ -8591,7 +8591,6 @@ int spider_discover_table_structure(
       DBUG_RETURN(HA_ERR_OUT_OF_MEM);
     }
     str.q_append(part_syntax, part_syntax_len);
-    my_free(part_syntax, MYF(0));
   }
 #endif
   DBUG_PRINT("info",("spider str=%s", str.c_ptr_safe()));

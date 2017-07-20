@@ -1,6 +1,7 @@
 /*****************************************************************************
 
-Copyright (c) 2012, Oracle and/or its affiliates. All Rights Reserved.
+Copyright (c) 2012, 2015, Oracle and/or its affiliates. All Rights Reserved.
+Copyright (c) 2017, MariaDB Corporation.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -24,19 +25,19 @@ Counter utility class
 Created 2012/04/12 by Sunny Bains
 *******************************************************/
 
-#ifndef UT0COUNTER_H
-#define UT0COUNTER_H
+#ifndef ut0counter_h
+#define ut0counter_h
 
+#include <my_rdtsc.h>
 #include "univ.i"
-#include <string.h>
 #include "os0thread.h"
 
 /** CPU cache line size */
-#ifdef __powerpc__
-#define CACHE_LINE_SIZE		128
+#ifdef CPU_LEVEL1_DCACHE_LINESIZE
+# define CACHE_LINE_SIZE	CPU_LEVEL1_DCACHE_LINESIZE
 #else
-#define CACHE_LINE_SIZE		64
-#endif
+# error CPU_LEVEL1_DCACHE_LINESIZE is undefined
+#endif /* CPU_LEVEL1_DCACHE_LINESIZE */
 
 /** Default number of slots to use in ib_counter_t */
 #define IB_N_SLOTS		64
@@ -44,65 +45,46 @@ Created 2012/04/12 by Sunny Bains
 /** Get the offset into the counter array. */
 template <typename Type, int N>
 struct generic_indexer_t {
-	/** Default constructor/destructor should be OK. */
-
         /** @return offset within m_counter */
-        size_t offset(size_t index) const UNIV_NOTHROW {
+        static size_t offset(size_t index) UNIV_NOTHROW
+	{
                 return(((index % N) + 1) * (CACHE_LINE_SIZE / sizeof(Type)));
         }
 };
 
-#ifdef HAVE_SCHED_GETCPU
-#include <utmpx.h>
-/** Use the cpu id to index into the counter array. If it fails then
-use the thread id. */
-template <typename Type, int N>
-struct get_sched_indexer_t : public generic_indexer_t<Type, N> {
-	/** Default constructor/destructor should be OK. */
+/** Use the result of my_timer_cycles(), which mainly uses RDTSC for cycles,
+to index into the counter array. See the comments for my_timer_cycles() */
+template <typename Type=ulint, int N=1>
+struct counter_indexer_t : public generic_indexer_t<Type, N> {
+	/** @return result from RDTSC or similar functions. */
+	static size_t get_rnd_index() UNIV_NOTHROW
+	{
+		size_t	c = static_cast<size_t>(my_timer_cycles());
 
-	/* @return result from sched_getcpu(), the thread id if it fails. */
-	size_t get_rnd_index() const UNIV_NOTHROW {
+		if (c != 0) {
+			return(c);
+		} else {
+			/* We may go here if my_timer_cycles() returns 0,
+			so we have to have the plan B for the counter. */
+#if !defined(_WIN32)
+			return(size_t(os_thread_get_curr_id()));
+#else
+			LARGE_INTEGER cnt;
+			QueryPerformanceCounter(&cnt);
 
-		size_t	cpu = sched_getcpu();
-		if (cpu == -1) {
-			cpu = (lint) os_thread_get_curr_id();
+			return(static_cast<size_t>(cnt.QuadPart));
+#endif /* !_WIN32 */
 		}
-
-		return(cpu);
 	}
-};
-#endif /* HAVE_SCHED_GETCPU */
 
-/** Use the thread id to index into the counter array. */
-template <typename Type, int N>
-struct thread_id_indexer_t : public generic_indexer_t<Type, N> {
-	/** Default constructor/destructor should are OK. */
-
-	/* @return a random number, currently we use the thread id. Where
-	thread id is represented as a pointer, it may not work as
-	effectively. */
-	size_t get_rnd_index() const UNIV_NOTHROW {
-		return((lint) os_thread_get_curr_id());
+	/** @return a random offset to the array */
+	static size_t get_rnd_offset() UNIV_NOTHROW
+	{
+		return(generic_indexer_t<Type, N>::offset(get_rnd_index()));
 	}
 };
 
-/** For counters wher N=1 */
-template <typename Type, int N=1>
-struct single_indexer_t {
-	/** Default constructor/destructor should are OK. */
-
-        /** @return offset within m_counter */
-        size_t offset(size_t index) const UNIV_NOTHROW {
-		ut_ad(N == 1);
-                return((CACHE_LINE_SIZE / sizeof(Type)));
-        }
-
-	/* @return 1 */
-	size_t get_rnd_index() const UNIV_NOTHROW {
-		ut_ad(N == 1);
-		return(1);
-	}
-};
+#define	default_indexer_t	counter_indexer_t
 
 /** Class for using fuzzy counters. The counter is not protected by any
 mutex and the results are not guaranteed to be 100% accurate but close
@@ -111,18 +93,12 @@ CACHE_LINE_SIZE bytes */
 template <
 	typename Type,
 	int N = IB_N_SLOTS,
-	template<typename, int> class Indexer = thread_id_indexer_t>
-class ib_counter_t {
-public:
-	ib_counter_t() { memset(m_counter, 0x0, sizeof(m_counter)); }
-
+	template<typename, int> class Indexer = default_indexer_t>
+struct MY_ALIGNED(CACHE_LINE_SIZE) ib_counter_t
+{
+#ifdef UNIV_DEBUG
 	~ib_counter_t()
 	{
-		ut_ad(validate());
-	}
-
-	bool validate() UNIV_NOTHROW {
-#ifdef UNIV_DEBUG
 		size_t	n = (CACHE_LINE_SIZE / sizeof(Type));
 
 		/* Check that we aren't writing outside our defined bounds. */
@@ -131,58 +107,29 @@ public:
 				ut_ad(m_counter[i + j] == 0);
 			}
 		}
-#endif /* UNIV_DEBUG */
-		return(true);
 	}
+#endif /* UNIV_DEBUG */
 
-	/** If you can't use a good index id. Increment by 1. */
+	/** Increment the counter by 1. */
 	void inc() UNIV_NOTHROW { add(1); }
 
-	/** If you can't use a good index id.
-	* @param n  - is the amount to increment */
-	void add(Type n) UNIV_NOTHROW {
-		size_t	i = m_policy.offset(m_policy.get_rnd_index());
+	/** Increment the counter by 1.
+	@param[in]	index	a reasonably thread-unique identifier */
+	void inc(size_t index) UNIV_NOTHROW { add(index, 1); }
 
-		ut_ad(i < UT_ARR_SIZE(m_counter));
+	/** Add to the counter.
+	@param[in]	n	amount to be added */
+	void add(Type n) UNIV_NOTHROW { add(m_policy.get_rnd_offset(), n); }
 
-		m_counter[i] += n;
-	}
-
-	/** Use this if you can use a unique indentifier, saves a
-	call to get_rnd_index().
-	@param i - index into a slot
-	@param n - amount to increment */
+	/** Add to the counter.
+	@param[in]	index	a reasonably thread-unique identifier
+	@param[in]	n	amount to be added */
 	void add(size_t index, Type n) UNIV_NOTHROW {
 		size_t	i = m_policy.offset(index);
 
 		ut_ad(i < UT_ARR_SIZE(m_counter));
 
 		m_counter[i] += n;
-	}
-
-	/** If you can't use a good index id. Decrement by 1. */
-	void dec() UNIV_NOTHROW { sub(1); }
-
-	/** If you can't use a good index id.
-	* @param - n is the amount to decrement */
-	void sub(Type n) UNIV_NOTHROW {
-		size_t	i = m_policy.offset(m_policy.get_rnd_index());
-
-		ut_ad(i < UT_ARR_SIZE(m_counter));
-
-		m_counter[i] -= n;
-	}
-
-	/** Use this if you can use a unique indentifier, saves a
-	call to get_rnd_index().
-	@param i - index into a slot
-	@param n - amount to decrement */
-	void sub(size_t index, Type n) UNIV_NOTHROW {
-		size_t	i = m_policy.offset(index);
-
-		ut_ad(i < UT_ARR_SIZE(m_counter));
-
-		m_counter[i] -= n;
 	}
 
 	/* @return total value - not 100% accurate, since it is not atomic. */
@@ -204,4 +151,4 @@ private:
 	Type		m_counter[(N + 1) * (CACHE_LINE_SIZE / sizeof(Type))];
 };
 
-#endif /* UT0COUNTER_H */
+#endif /* ut0counter_h */

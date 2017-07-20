@@ -1717,7 +1717,7 @@ int spider_db_mysql::exec_query(
           l_time->tm_hour, l_time->tm_min, l_time->tm_sec,
           security_ctx->user ? security_ctx->user : "system user",
           security_ctx->host_or_ip,
-          thd->thread_id,
+          (ulong) thd->thread_id,
           tmp_query_str.c_ptr_safe());
       }
       if (log_result_error_with_sql & 1)
@@ -1731,7 +1731,7 @@ int spider_db_mysql::exec_query(
           "sql: %s\n",
           l_time->tm_year + 1900, l_time->tm_mon + 1, l_time->tm_mday,
           l_time->tm_hour, l_time->tm_min, l_time->tm_sec,
-          thd->thread_id, conn->tgt_host, db_conn->thread_id,
+          (ulong) thd->thread_id, conn->tgt_host, (ulong) db_conn->thread_id,
           tmp_query_str.c_ptr_safe());
       }
     }
@@ -1745,7 +1745,7 @@ int spider_db_mysql::exec_query(
         "affected_rows: %llu  id: %llu  status: %u  warning_count: %u\n",
         l_time->tm_year + 1900, l_time->tm_mon + 1, l_time->tm_mday,
         l_time->tm_hour, l_time->tm_min, l_time->tm_sec,
-        conn->tgt_host, db_conn->thread_id, thd->thread_id,
+        conn->tgt_host, (ulong) db_conn->thread_id, (ulong) thd->thread_id,
         db_conn->affected_rows, db_conn->insert_id,
         db_conn->server_status, db_conn->warning_count);
       if (spider_param_log_result_errors() >= 3)
@@ -1760,7 +1760,7 @@ int spider_db_mysql::exec_query(
         "affected_rows: %llu  id: %llu  status: %u  warning_count: %u\n",
         l_time->tm_year + 1900, l_time->tm_mon + 1, l_time->tm_mday,
         l_time->tm_hour, l_time->tm_min, l_time->tm_sec,
-        conn->tgt_host, db_conn->thread_id, thd->thread_id,
+        conn->tgt_host, (ulong) db_conn->thread_id, (ulong) thd->thread_id,
         db_conn->affected_rows, db_conn->insert_id,
         db_conn->server_status, db_conn->warning_count);
     }
@@ -1889,8 +1889,8 @@ void spider_db_mysql::print_warnings(
             "from [%s] %ld to %ld: %s %s %s\n",
             l_time->tm_year + 1900, l_time->tm_mon + 1, l_time->tm_mday,
             l_time->tm_hour, l_time->tm_min, l_time->tm_sec,
-            conn->tgt_host, db_conn->thread_id,
-            current_thd->thread_id, row[0], row[1], row[2]);
+            conn->tgt_host, (ulong) db_conn->thread_id,
+            (ulong) current_thd->thread_id, row[0], row[1], row[2]);
           row = mysql_fetch_row(res);
         }
         if (res)
@@ -8134,7 +8134,7 @@ int spider_mysql_handler::append_key_order_for_direct_order_limit_with_alias(
         DBUG_PRINT("info",("spider error=%d", error_num));
         DBUG_RETURN(error_num);
       }
-      if (order->asc)
+      if (order->direction == ORDER::ORDER_ASC)
       {
         if (str->reserve(SPIDER_SQL_COMMA_LEN))
           DBUG_RETURN(HA_ERR_OUT_OF_MEM);
@@ -9514,6 +9514,65 @@ int spider_mysql_handler::append_explain_select(
     DBUG_RETURN(HA_ERR_OUT_OF_MEM);
   }
   DBUG_RETURN(0);
+}
+
+/********************************************************************
+ * Determine whether the current query's projection list
+ * consists solely of the specified column.
+ *
+ * Params   IN      - field_index:
+ *                    Field index of the column of interest within
+ *                    its table.
+ *
+ * Returns  TRUE    - if the query's projection list consists
+ *                    solely of the specified column.
+ *          FALSE   - otherwise.
+ ********************************************************************/
+bool spider_mysql_handler::is_sole_projection_field( uint16 field_index )
+{
+    // Determine whether the projection list consists solely of the field of interest
+    bool            is_field_in_projection_list = FALSE;
+    TABLE*          table                       = spider->get_table();
+    uint16          projection_field_count      = 0;
+    uint16          projection_field_index;
+    Field**         field;
+    DBUG_ENTER( "spider_mysql_handler::is_sole_projection_field" );
+
+    for ( field = table->field; *field ; field++ )
+    {
+        projection_field_index = ( *field )->field_index;
+
+        if ( !( minimum_select_bit_is_set( projection_field_index ) ) )
+        {
+            // Current field is not in the projection list
+            continue;
+        }
+
+        projection_field_count++;
+
+        if ( !is_field_in_projection_list )
+        {
+            if ( field_index == projection_field_index )
+            {
+                // Field of interest is in the projection list
+                is_field_in_projection_list = TRUE;
+            }
+        }
+
+        if ( is_field_in_projection_list && ( projection_field_count != 1 ) )
+        {
+            // Field of interest is not the sole column in the projection list
+            DBUG_RETURN( FALSE );
+        }
+    }
+
+    if ( is_field_in_projection_list && ( projection_field_count == 1 ) )
+    {
+        // Field of interest is the only column in the projection list
+        DBUG_RETURN( TRUE );
+    }
+
+    DBUG_RETURN( FALSE );
 }
 
 bool spider_mysql_handler::is_bulk_insert_exec_period(

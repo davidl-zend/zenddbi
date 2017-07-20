@@ -1,4 +1,5 @@
 /* Copyright (c) 2004, 2015, Oracle and/or its affiliates.
+   Copyright (c) 2017, MariaDB Corporation.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -407,7 +408,6 @@ static const int bulk_padding= 64;              // bytes "overhead" in packet
 
 /* Variables used when chopping off trailing characters */
 static const uint sizeof_trailing_comma= sizeof(", ") - 1;
-static const uint sizeof_trailing_closeparen= sizeof(") ") - 1;
 static const uint sizeof_trailing_and= sizeof(" AND ") - 1;
 static const uint sizeof_trailing_where= sizeof(" WHERE ") - 1;
 
@@ -561,8 +561,7 @@ static bool append_ident(String *string, const char *name, size_t length,
     for (name_end= name+length; name < name_end; name+= clen)
     {
       uchar c= *(uchar *) name;
-      if (!(clen= my_mbcharlen(system_charset_info, c)))
-        clen= 1;
+      clen= my_charlen_fix(system_charset_info, name, name_end);
       if (clen == 1 && c == (uchar) quote_char &&
           (result= string->append(&quote_char, 1, system_charset_info)))
         goto err;
@@ -1655,7 +1654,7 @@ public:
 
 public:
   bool handle_condition(THD *thd, uint sql_errno, const char* sqlstate,
-                        Sql_condition::enum_warning_level level,
+                        Sql_condition::enum_warning_level *level,
                         const char* msg, Sql_condition ** cond_hdl)
   {
     return sql_errno >= ER_ABORTING_CONNECTION &&
@@ -2945,6 +2944,7 @@ int ha_federated::extra(ha_extra_function operation)
     break;
   case HA_EXTRA_PREPARE_FOR_DROP:
     table_will_be_deleted = TRUE;
+    break;
   default:
     /* do nothing */
     DBUG_PRINT("info",("unhandled operation: %d", (uint) operation));

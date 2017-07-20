@@ -1444,7 +1444,9 @@ static void register_statement_v1(const char *category,
 
   for (; count>0; count--, info++)
   {
-    DBUG_ASSERT(info->m_name != NULL);
+    if (info->m_name == NULL)
+      continue;
+
     len= strlen(info->m_name);
     full_length= prefix_length + len;
     if (likely(full_length <= PFS_MAX_INFO_NAME_LENGTH))
@@ -3951,9 +3953,11 @@ static PSI_file* end_file_open_wait_v1(PSI_file_locker *locker,
   switch (state->m_operation)
   {
   case PSI_FILE_STAT:
+  case PSI_FILE_RENAME:
     break;
   case PSI_FILE_STREAM_OPEN:
   case PSI_FILE_CREATE:
+  case PSI_FILE_OPEN:
     if (result != NULL)
     {
       PFS_file_class *klass= reinterpret_cast<PFS_file_class*> (state->m_class);
@@ -3964,7 +3968,6 @@ static PSI_file* end_file_open_wait_v1(PSI_file_locker *locker,
       state->m_file= reinterpret_cast<PSI_file*> (pfs_file);
     }
     break;
-  case PSI_FILE_OPEN:
   default:
     DBUG_ASSERT(false);
     break;
@@ -4843,6 +4846,7 @@ static void end_statement_v1(PSI_statement_locker *locker, void *stmt_da)
 
       switch(da->status())
       {
+        case Diagnostics_area::DA_OK_BULK:
         case Diagnostics_area::DA_EMPTY:
           break;
         case Diagnostics_area::DA_OK:
@@ -4976,6 +4980,7 @@ static void end_statement_v1(PSI_statement_locker *locker, void *stmt_da)
 
   switch (da->status())
   {
+    case Diagnostics_area::DA_OK_BULK:
     case Diagnostics_area::DA_EMPTY:
       break;
     case Diagnostics_area::DA_OK:

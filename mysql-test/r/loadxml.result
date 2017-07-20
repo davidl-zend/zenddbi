@@ -57,8 +57,11 @@ a	b
 select 1 as xml;
 xml
 1
+connect  addconroot, localhost, root,,;
+connection addconroot;
 create table t2(fl text);
 LOAD XML LOCAL INFILE "MYSQLTEST_VARDIR/tmp/loadxml-dump.xml"  INTO TABLE t2 ROWS IDENTIFIED BY '<person>';;
+connection default;
 drop table t1;
 drop table t2;
 create table t1 (
@@ -119,4 +122,15 @@ SELECT * FROM t1 ORDER BY col1, col2, col3;
 col1	col2	col3
 ABC	DEF	NULL
 GHI	NULL	123
+DROP TABLE t1;
+#
+# MDEV-12696 Crash with LOAD XML and non-updatable VIEW column
+#
+CREATE TABLE t1 (c1 TEXT);
+CREATE VIEW v1 AS SELECT CONCAT(c1,'') AS c1, NULL AS c2 FROM t1;
+LOAD XML INFILE '../../std_data/loaddata/mdev12696.xml' INTO TABLE v1 (c1);
+ERROR HY000: Column 'c1' is not updatable
+LOAD XML INFILE '../../std_data/loaddata/mdev12696.xml' INTO TABLE v1 (c2);
+ERROR HY000: Column 'c2' is not updatable
+DROP VIEW v1;
 DROP TABLE t1;

@@ -103,7 +103,7 @@ frm_type_enum dd_frm_type(THD *thd, char *path, LEX_STRING *engine_name)
     if (mysql_file_seek(file, 0, SEEK_SET, MYF(MY_WME)))
       goto err;
 
-    if (read_string(file, &frm_image, state.st_size))
+    if (read_string(file, &frm_image, (size_t)state.st_size))
       goto err;
 
     if ((n_length= uint4korr(frm_image+55)))

@@ -74,34 +74,6 @@ int (*_my_b_encr_read)(IO_CACHE *info,uchar *Buffer,size_t Count)= 0;
 int (*_my_b_encr_write)(IO_CACHE *info,const uchar *Buffer,size_t Count)= 0;
 
 
-/*
-  Setup internal pointers inside IO_CACHE
-
-  SYNOPSIS
-    setup_io_cache()
-    info		IO_CACHE handler
-
-  NOTES
-    This is called on automatically on init or reinit of IO_CACHE
-    It must be called externally if one moves or copies an IO_CACHE
-    object.
-*/
-
-void setup_io_cache(IO_CACHE* info)
-{
-  /* Ensure that my_b_tell() and my_b_bytes_in_cache works */
-  if (info->type == WRITE_CACHE)
-  {
-    info->current_pos= &info->write_pos;
-    info->current_end= &info->write_end;
-  }
-  else
-  {
-    info->current_pos= &info->read_pos;
-    info->current_end= &info->read_end;
-  }
-}
-
 
 static void
 init_functions(IO_CACHE* info)
@@ -148,8 +120,6 @@ init_functions(IO_CACHE* info)
     DBUG_ASSERT(0);
     break;
   }
-
-  setup_io_cache(info);
 }
 
 
@@ -193,6 +163,7 @@ int init_io_cache(IO_CACHE *info, File file, size_t cachesize,
   info->alloced_buffer = 0;
   info->buffer=0;
   info->seek_not_done= 0;
+  info->next_file_user= NULL;
 
   if (file >= 0)
   {
@@ -327,6 +298,103 @@ int init_io_cache(IO_CACHE *info, File file, size_t cachesize,
 #endif
   DBUG_RETURN(0);
 }						/* init_io_cache */
+
+
+
+/*
+  Initialize the slave IO_CACHE to read the same file (and data)
+  as master does.
+
+  One can create multiple slaves from a single master. Every slave and master
+  will have independent file positions.
+
+  The master must be a non-shared READ_CACHE.
+  It is assumed that no more reads are done after a master and/or a slave 
+  has been freed (this limitation can be easily lifted).
+*/
+
+int init_slave_io_cache(IO_CACHE *master, IO_CACHE *slave)
+{
+  uchar *slave_buf;
+  DBUG_ASSERT(master->type == READ_CACHE);
+  DBUG_ASSERT(!master->share);
+  DBUG_ASSERT(master->alloced_buffer);
+
+  if (!(slave_buf= (uchar*)my_malloc(master->buffer_length, MYF(0))))
+  {
+    return 1;
+  }
+  memcpy(slave, master, sizeof(IO_CACHE));
+  slave->buffer= slave_buf;
+
+  memcpy(slave->buffer, master->buffer, master->buffer_length);
+  slave->read_pos= slave->buffer + (master->read_pos - master->buffer);
+  slave->read_end= slave->buffer + (master->read_end - master->buffer);
+
+  if (master->next_file_user)
+  {
+    IO_CACHE *p;
+    for (p= master->next_file_user; 
+         p->next_file_user !=master;
+         p= p->next_file_user)
+    {}
+
+    p->next_file_user= slave;
+    slave->next_file_user= master;
+  }
+  else
+  {
+    slave->next_file_user= master;
+    master->next_file_user= slave;
+  }
+  return 0;
+}
+
+
+void end_slave_io_cache(IO_CACHE *cache)
+{
+  my_free(cache->buffer);
+}
+
+/*
+  Seek a read io cache to a given offset
+*/
+void seek_io_cache(IO_CACHE *cache, my_off_t needed_offset)
+{
+  my_off_t cached_data_start= cache->pos_in_file;
+  my_off_t cached_data_end= cache->pos_in_file + (cache->read_end -
+                                                  cache->buffer);
+
+  if (needed_offset >= cached_data_start &&
+      needed_offset < cached_data_end)
+  {
+    /* 
+      The offset we're seeking to is in the buffer. 
+      Move buffer's read position accordingly
+    */
+    cache->read_pos= cache->buffer + (needed_offset - cached_data_start);
+  }
+  else
+  {
+    if (needed_offset > cache->end_of_file)
+      needed_offset= cache->end_of_file;
+    /* 
+      The offset we're seeking to is not in the buffer.
+      - Set the buffer to be exhausted.
+      - Make the next read to a mysql_file_seek() call to the required 
+        offset.
+      TODO(cvicentiu, spetrunia) properly implement aligned seeks for
+      efficiency.
+    */
+    cache->seek_not_done= 1;
+    cache->pos_in_file= needed_offset;
+    /* When reading it must appear as if we've started from  the offset
+       that we've seeked here. We must let _my_b_cache_read assume that
+       by implying "no reading starting from pos_in_file" has happened. */
+    cache->read_pos= cache->buffer;
+    cache->read_end= cache->buffer;
+  }
+}
 
 	/* Wait until current request is ready */
 
@@ -517,7 +585,7 @@ int _my_b_write(IO_CACHE *info, const uchar *Buffer, size_t Count)
   {
     my_off_t old_pos_in_file= info->pos_in_file;
     res= info->write_function(info, Buffer, Count);
-    Count-= info->pos_in_file - old_pos_in_file;
+    Count-= (size_t) (info->pos_in_file - old_pos_in_file);
     Buffer+= info->pos_in_file - old_pos_in_file;
   }
   else
@@ -583,6 +651,17 @@ int _my_b_cache_read(IO_CACHE *info, uchar *Buffer, size_t Count)
     {
       /* No error, reset seek_not_done flag. */
       info->seek_not_done= 0;
+
+      if (info->next_file_user)
+      {
+        IO_CACHE *c;
+        for (c= info->next_file_user;
+             c!= info;
+             c= c->next_file_user)
+        {
+          c->seek_not_done= 1;
+        }
+      }
     }
     else
     {
@@ -671,22 +750,35 @@ int _my_b_cache_read(IO_CACHE *info, uchar *Buffer, size_t Count)
       DBUG_RETURN(0);                           /* EOF */
     }
   }
-  else if ((length= mysql_file_read(info->file,info->buffer, max_length,
+  else 
+  {
+    if (info->next_file_user)
+    {
+      IO_CACHE *c;
+      for (c= info->next_file_user;
+           c!= info;
+           c= c->next_file_user)
+      {
+        c->seek_not_done= 1;
+      }
+    }
+    if ((length= mysql_file_read(info->file,info->buffer, max_length,
                             info->myflags)) < Count ||
 	   length == (size_t) -1)
-  {
-    /*
-      We got an read error, or less than requested (end of file).
-      If not a read error, copy, what we got.
-    */
-    if (length != (size_t) -1)
-      memcpy(Buffer, info->buffer, length);
-    info->pos_in_file= pos_in_file;
-    /* For a read error, return -1, otherwise, what we got in total. */
-    info->error= length == (size_t) -1 ? -1 : (int) (length+left_length);
-    info->read_pos=info->read_end=info->buffer;
-    info->seek_not_done=1;
-    DBUG_RETURN(1);
+    {
+      /*
+        We got an read error, or less than requested (end of file).
+        If not a read error, copy, what we got.
+      */
+      if (length != (size_t) -1)
+        memcpy(Buffer, info->buffer, length);
+      info->pos_in_file= pos_in_file;
+      /* For a read error, return -1, otherwise, what we got in total. */
+      info->error= length == (size_t) -1 ? -1 : (int) (length+left_length);
+      info->read_pos=info->read_end=info->buffer;
+      info->seek_not_done=1;
+      DBUG_RETURN(1);
+    }
   }
   /*
     Count is the remaining number of bytes requested.
@@ -797,8 +889,6 @@ void init_io_cache_share(IO_CACHE *read_cache, IO_CACHE_SHARE *cshare,
 
   read_cache->share=         cshare;
   read_cache->read_function= _my_b_cache_read_r;
-  read_cache->current_pos=   NULL;
-  read_cache->current_end=   NULL;
 
   if (write_cache)
   {
@@ -1229,7 +1319,7 @@ static int _my_b_cache_read_r(IO_CACHE *cache, uchar *Buffer, size_t Count)
 static void copy_to_read_buffer(IO_CACHE *write_cache,
                                 const uchar *write_buffer, my_off_t pos_in_file)
 {
-  size_t write_length= write_cache->pos_in_file - pos_in_file;
+  size_t write_length= (size_t) (write_cache->pos_in_file - pos_in_file);
   IO_CACHE_SHARE *cshare= write_cache->share;
 
   DBUG_ASSERT(cshare->source_cache == write_cache);

@@ -1,6 +1,6 @@
 /*****************************************************************************
 
-Copyright (c) 1996, 2015, Oracle and/or its affiliates. All Rights Reserved.
+Copyright (c) 1996, 2017, Oracle and/or its affiliates. All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -353,10 +353,17 @@ trx_sys_update_wsrep_checkpoint(
             unsigned char xid_uuid[16];
             long long xid_seqno = read_wsrep_xid_seqno(xid);
             read_wsrep_xid_uuid(xid, xid_uuid);
-            if (!memcmp(xid_uuid, trx_sys_cur_xid_uuid, 8))
+            if (!memcmp(xid_uuid, trx_sys_cur_xid_uuid, 16))
             {
+              /*
+                This check is a protection against the initial seqno (-1)
+                assigned in read_wsrep_xid_uuid(), which, if not checked,
+                would cause the following assertion to fail.
+              */
+              if (xid_seqno > -1 )
+              {
                 ut_ad(xid_seqno > trx_sys_cur_xid_seqno);
-                trx_sys_cur_xid_seqno = xid_seqno;
+              }
             }
             else
             {
@@ -397,7 +404,7 @@ trx_sys_update_wsrep_checkpoint(
 
 }
 
-void
+bool
 trx_sys_read_wsrep_checkpoint(XID* xid)
 /*===================================*/
 {
@@ -415,10 +422,12 @@ trx_sys_read_wsrep_checkpoint(XID* xid)
                                       + TRX_SYS_WSREP_XID_MAGIC_N_FLD))
             != TRX_SYS_WSREP_XID_MAGIC_N) {
                 memset(xid, 0, sizeof(*xid));
+                long long seqno= -1;
+                memcpy(xid->data + 24, &seqno, sizeof(long long));
                 xid->formatID = -1;
                 trx_sys_update_wsrep_checkpoint(xid, sys_header, &mtr);
                 mtr_commit(&mtr);
-                return;
+                return false;
         }
 
         xid->formatID     = (int)mach_read_from_4(
@@ -435,6 +444,7 @@ trx_sys_read_wsrep_checkpoint(XID* xid)
                   XIDDATASIZE);
 
 	mtr_commit(&mtr);
+	return true;
 }
 
 #endif /* WITH_WSREP */
@@ -1054,18 +1064,12 @@ trx_sys_create_rsegs(
 		ulint	new_rsegs = n_rsegs - n_used;
 
 		for (i = 0; i < new_rsegs; ++i) {
-			ulint	space;
+			ulint	space_id;
+			space_id = (n_spaces == 0) ? 0
+				: (srv_undo_space_id_start + i % n_spaces);
 
-			/* Tablespace 0 is the system tablespace. All UNDO
-			log tablespaces start from 1. */
-
-			if (n_spaces > 0) {
-				space = (i % n_spaces) + 1;
-			} else {
-				space = 0; /* System tablespace */
-			}
-
-			if (trx_rseg_create(space) != NULL) {
+			/* Tablespace 0 is the system tablespace. */
+			if (trx_rseg_create(space_id) != NULL) {
 				++n_used;
 			} else {
 				break;
@@ -1330,14 +1334,17 @@ trx_sys_close(void)
 	trx_purge_sys_close();
 
 	/* Free the double write data structures. */
-	buf_dblwr_free();
+	if (buf_dblwr) {
+		buf_dblwr_free();
+	}
 
-	ut_a(UT_LIST_GET_LEN(trx_sys->ro_trx_list) == 0);
 
 	/* Only prepared transactions may be left in the system. Free them. */
 	ut_a(UT_LIST_GET_LEN(trx_sys->rw_trx_list) == trx_sys->n_prepared_trx
 	     || srv_read_only_mode
-	     || srv_force_recovery >= SRV_FORCE_NO_TRX_UNDO);
+	     || srv_force_recovery >= SRV_FORCE_NO_TRX_UNDO
+	     || (IS_XTRABACKUP() && srv_apply_log_only));
+
 
 	while ((trx = UT_LIST_GET_FIRST(trx_sys->rw_trx_list)) != NULL) {
 		trx_free_prepared(trx);
@@ -1368,10 +1375,12 @@ trx_sys_close(void)
 		UT_LIST_REMOVE(view_list, trx_sys->view_list, prev_view);
 	}
 
-	ut_a(UT_LIST_GET_LEN(trx_sys->view_list) == 0);
-	ut_a(UT_LIST_GET_LEN(trx_sys->ro_trx_list) == 0);
-	ut_a(UT_LIST_GET_LEN(trx_sys->rw_trx_list) == 0);
-	ut_a(UT_LIST_GET_LEN(trx_sys->mysql_trx_list) == 0);
+	if (!IS_XTRABACKUP() || !srv_apply_log_only) {
+		ut_a(UT_LIST_GET_LEN(trx_sys->view_list) == 0);
+		ut_a(UT_LIST_GET_LEN(trx_sys->ro_trx_list) == 0);
+		ut_a(UT_LIST_GET_LEN(trx_sys->rw_trx_list) == 0);
+		ut_a(UT_LIST_GET_LEN(trx_sys->mysql_trx_list) == 0);
+	}
 
 	mutex_free(&trx_sys->mutex);
 
@@ -1418,6 +1427,9 @@ ulint
 trx_sys_any_active_transactions(void)
 /*=================================*/
 {
+	if (IS_XTRABACKUP() && srv_apply_log_only) {
+		return(0);
+	}
 	mutex_enter(&trx_sys->mutex);
 
 	ulint	total_trx = UT_LIST_GET_LEN(trx_sys->mysql_trx_list);

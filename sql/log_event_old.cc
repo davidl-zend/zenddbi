@@ -221,6 +221,8 @@ Old_rows_log_event::do_apply_event(Old_rows_log_event *ev, rpl_group_info *rgi)
     /* A small test to verify that objects have consistent types */
     DBUG_ASSERT(sizeof(ev_thd->variables.option_bits) == sizeof(OPTION_RELAXED_UNIQUE_CHECKS));
 
+    table->rpl_write_set= table->write_set;
+
     error= do_before_row_operations(table);
     while (error == 0 && row_start < ev->m_rows_end)
     {
@@ -1582,11 +1584,10 @@ int Old_rows_log_event::do_apply_event(rpl_group_info *rgi)
         break;
 
       default:
-	rli->report(ERROR_LEVEL, thd->net.last_errno, NULL,
+        rli->report(ERROR_LEVEL, thd->net.last_errno, NULL,
                     "Error in %s event: row application failed. %s",
-                    get_type_str(),
-                    thd->net.last_error ? thd->net.last_error : "");
-       thd->is_slave_error= 1;
+                    get_type_str(), thd->net.last_error);
+        thd->is_slave_error= 1;
 	break;
       }
 
@@ -1625,7 +1626,7 @@ int Old_rows_log_event::do_apply_event(rpl_group_info *rgi)
                 "on table %s.%s. %s",
                 get_type_str(), table->s->db.str,
                 table->s->table_name.str,
-                thd->net.last_error ? thd->net.last_error : "");
+                thd->net.last_error);
 
     /*
       If one day we honour --skip-slave-errors in row-based replication, and

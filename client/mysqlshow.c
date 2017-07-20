@@ -1,6 +1,6 @@
 /*
    Copyright (c) 2000, 2015, Oracle and/or its affiliates.
-   Copyright (c) 2010, 2016, MariaDB
+   Copyright (c) 2010, 2017, MariaDB
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -68,6 +68,7 @@ int main(int argc, char **argv)
   my_bool first_argument_uses_wildcards=0;
   char *wild;
   MYSQL mysql;
+  my_bool reconnect;
   static char **defaults_argv;
   MY_INIT(argv[0]);
   sf_leaking_memory=1; /* don't report memory leaks on early exits */
@@ -155,7 +156,8 @@ int main(int argc, char **argv)
     error= 1;
     goto error;
   }
-  mysql.reconnect= 1;
+  reconnect= 1;
+  mysql_options(&mysql, MYSQL_OPT_RECONNECT, &reconnect);
 
   switch (argc) {
   case 0:  error=list_dbs(&mysql,wild); break;

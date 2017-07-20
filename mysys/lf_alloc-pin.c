@@ -121,7 +121,6 @@ void lf_pinbox_init(LF_PINBOX *pinbox, uint free_ptr_offset,
                     lf_pinbox_free_func *free_func, void *free_func_arg)
 {
   DBUG_ASSERT(free_ptr_offset % sizeof(void *) == 0);
-  compile_time_assert(sizeof(LF_PINS) == 128);
   lf_dynarray_init(&pinbox->pinarray, sizeof(LF_PINS));
   pinbox->pinstack_top_ver= 0;
   pinbox->pins_in_array= 0;
@@ -323,12 +322,6 @@ static int match_pins(LF_PINS *el, void *addr)
         return 1;
   return 0;
 }
-
-#if STACK_DIRECTION < 0
-#define available_stack_size(CUR,END) (long) ((char*)(CUR) - (char*)(END))
-#else
-#define available_stack_size(CUR,END) (long) ((char*)(END) - (char*)(CUR))
-#endif
 
 #define next_node(P, X) (*((uchar * volatile *)(((uchar *)(X)) + (P)->free_ptr_offset)))
 #define anext_node(X) next_node(&allocator->pinbox, (X))

@@ -247,7 +247,7 @@ ib_open_table_by_id(
 
 	table = dict_table_open_on_id(table_id, TRUE, DICT_TABLE_OP_NORMAL);
 
-	if (table != NULL && table->ibd_file_missing) {
+	if (table != NULL && table->file_unreadable) {
 		table = NULL;
 	}
 
@@ -272,7 +272,7 @@ ib_open_table_by_name(
 	table = dict_table_open_on_name(name, FALSE, FALSE,
 					DICT_ERR_IGNORE_NONE);
 
-	if (table != NULL && table->ibd_file_missing) {
+	if (table != NULL && table->file_unreadable) {
 		table = NULL;
 	}
 
@@ -292,7 +292,7 @@ ib_lookup_table_by_name(
 
 	table = dict_table_get_low(name);
 
-	if (table != NULL && table->ibd_file_missing) {
+	if (table != NULL && table->file_unreadable) {
 		table = NULL;
 	}
 
@@ -2334,7 +2334,7 @@ ib_col_set_value(
 
 			if (len > 0 && cs->mbmaxlen > 1) {
 				true_len = (ulint)
-					cs->cset->well_formed_len(
+					my_well_formed_length(
 						cs,
 						(const char*)src,
 						(const char*)src + len,

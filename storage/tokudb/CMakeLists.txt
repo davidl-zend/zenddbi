@@ -1,4 +1,4 @@
-SET(TOKUDB_VERSION 5.6.35-80.0)
+SET(TOKUDB_VERSION 5.6.36-82.0)
 # PerconaFT only supports x86-64 and cmake-2.8.9+
 IF(CMAKE_VERSION VERSION_LESS "2.8.9")
   MESSAGE(STATUS "CMake 2.8.9 or higher is required by TokuDB")
@@ -21,12 +21,17 @@ SET(TOKUDB_SOURCES
     tokudb_background.cc
     tokudb_information_schema.cc
     tokudb_sysvars.cc
-    tokudb_thread.cc)
-MYSQL_ADD_PLUGIN(tokudb ${TOKUDB_SOURCES} STORAGE_ENGINE MODULE_ONLY)
+    tokudb_thread.cc
+    tokudb_dir_cmd.cc)
+MYSQL_ADD_PLUGIN(tokudb ${TOKUDB_SOURCES} STORAGE_ENGINE MODULE_ONLY
+                 COMPONENT tokudb-engine)
 
 IF(NOT TARGET tokudb)
   RETURN()
 ENDIF()
+
+INCLUDE(jemalloc)
+CHECK_JEMALLOC()
 
 IF(NOT LIBJEMALLOC)
   MESSAGE(WARNING "TokuDB is enabled, but jemalloc is not. This configuration is not supported")
@@ -35,7 +40,6 @@ ENDIF()
 MY_CHECK_AND_SET_COMPILER_FLAG("-Wno-vla" DEBUG)
 
 ############################################
-SET(TOKUDB_DEB_FILES "usr/lib/mysql/plugin/ha_tokudb.so\netc/mysql/conf.d/tokudb.cnf\nusr/bin/tokuftdump" PARENT_SCOPE)
 MARK_AS_ADVANCED(BUILDNAME)
 MARK_AS_ADVANCED(BUILD_TESTING)
 MARK_AS_ADVANCED(CMAKE_TOKUDB_REVISION)
@@ -103,14 +107,12 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/${TOKU_FT_DIR_NAME}/buildheader)
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/${TOKU_FT_DIR_NAME}/portability)
 
 TARGET_LINK_LIBRARIES(tokudb tokufractaltree_static tokuportability_static
-                      ${ZLIB_LIBRARY} stdc++)
+                      ${ZLIB_LIBRARY} ${LIBJEMALLOC} stdc++)
 
 SET(CMAKE_MODULE_LINKER_FLAGS_RELEASE "${CMAKE_MODULE_LINKER_FLAGS_RELEASE} -flto -fuse-linker-plugin")
 SET(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO} -flto -fuse-linker-plugin")
 
-SET(CPACK_RPM_server_PACKAGE_OBSOLETES
-  "${CPACK_RPM_server_PACKAGE_OBSOLETES} MariaDB-tokudb-engine < 10.0.5" PARENT_SCOPE)
-
 IF (INSTALL_SYSCONF2DIR)
-  INSTALL(FILES tokudb.cnf DESTINATION ${INSTALL_SYSCONF2DIR} COMPONENT Server)
+  INSTALL(FILES tokudb.cnf DESTINATION ${INSTALL_SYSCONF2DIR}
+          COMPONENT tokudb-engine)
 ENDIF(INSTALL_SYSCONF2DIR)

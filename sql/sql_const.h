@@ -69,6 +69,7 @@
 #define RAND_TABLE_BIT	(((table_map) 1) << (sizeof(table_map)*8-1))
 #define PSEUDO_TABLE_BITS (PARAM_TABLE_BIT | OUTER_REF_TABLE_BIT | \
                            RAND_TABLE_BIT)
+#define CONNECT_STRING_MAXLEN   65535           /* stored in 2 bytes in .frm */
 #define MAX_FIELDS	4096			/* Limit in the .frm file */
 #define MAX_PARTITIONS  8192
 
@@ -101,6 +102,8 @@
 #define DISK_BUFFER_SIZE	(uint) (IO_SIZE*16) /* Size of diskbuffer */
 
 #define FRM_VER_TRUE_VARCHAR (FRM_VER+4) /* 10 */
+#define FRM_VER_EXPRESSSIONS (FRM_VER+5) /* 11 */
+#define FRM_VER_CURRENT  FRM_VER_EXPRESSSIONS
 
 /***************************************************************************
   Configuration parameters
@@ -235,6 +238,8 @@
   that does not respond to "initial server greeting" timely
 */
 #define CONNECT_TIMEOUT		10
+ /* Wait 5 minutes before removing thread from thread cache */
+#define THREAD_CACHE_TIMEOUT	5*60
 
 /* The following can also be changed from the command line */
 #define DEFAULT_CONCURRENCY	10

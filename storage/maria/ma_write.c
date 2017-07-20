@@ -107,9 +107,10 @@ int maria_write(MARIA_HA *info, uchar *record)
   if (_ma_readinfo(info,F_WRLCK,1))
     DBUG_RETURN(my_errno);
 
-  if (share->base.reloc == (ha_rows) 1 &&
-      share->base.records == (ha_rows) 1 &&
-      share->state.state.records == (ha_rows) 1)
+  if ((share->state.changed & STATE_DATA_FILE_FULL) ||
+      (share->base.reloc == (ha_rows) 1 &&
+       share->base.records == (ha_rows) 1 &&
+       share->state.state.records == (ha_rows) 1))
   {						/* System file */
     my_errno=HA_ERR_RECORD_FILE_FULL;
     goto err2;
@@ -880,7 +881,7 @@ ChangeSet@1.2562, 2008-04-09 07:41:40+02:00, serg@janus.mylan +9 -0
       DBUG_ASSERT(info->ft1_to_ft2==0);
       if (alen == blen &&
           ha_compare_text(keyinfo->seg->charset, a, alen,
-                          b, blen, 0, 0) == 0)
+                          b, blen, 0) == 0)
       {
         /* Yup. converting */
         info->ft1_to_ft2=(DYNAMIC_ARRAY *)

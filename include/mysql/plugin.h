@@ -75,7 +75,7 @@ typedef struct st_mysql_xid MYSQL_XID;
 #define MYSQL_PLUGIN_INTERFACE_VERSION 0x0104
 
 /* MariaDB plugin interface version */
-#define MARIA_PLUGIN_INTERFACE_VERSION 0x010c
+#define MARIA_PLUGIN_INTERFACE_VERSION 0x010d
 
 /*
   The allowable types of plugins
@@ -392,6 +392,23 @@ DECLARE_MYSQL_SYSVAR_SIMPLE(name, long long) = { \
 DECLARE_MYSQL_SYSVAR_SIMPLE(name, unsigned long long) = { \
   PLUGIN_VAR_LONGLONG | PLUGIN_VAR_UNSIGNED | ((opt) & PLUGIN_VAR_MASK), \
   #name, comment, check, update, &varname, def, min, max, blk }
+
+#define MYSQL_SYSVAR_UINT64_T(name, varname, opt, comment, check, update, def, min, max, blk) \
+DECLARE_MYSQL_SYSVAR_SIMPLE(name, uint64_t) = { \
+  PLUGIN_VAR_LONGLONG | PLUGIN_VAR_UNSIGNED | ((opt) & PLUGIN_VAR_MASK), \
+  #name, comment, check, update, &varname, def, min, max, blk }
+
+#ifdef _WIN64
+#define MYSQL_SYSVAR_SIZE_T(name, varname, opt, comment, check, update, def, min, max, blk) \
+DECLARE_MYSQL_SYSVAR_SIMPLE(name, size_t) = { \
+  PLUGIN_VAR_LONGLONG | PLUGIN_VAR_UNSIGNED | ((opt) & PLUGIN_VAR_MASK), \
+  #name, comment, check, update, &varname, def, min, max, blk }
+#else
+#define MYSQL_SYSVAR_SIZE_T(name, varname, opt, comment, check, update, def, min, max, blk) \
+DECLARE_MYSQL_SYSVAR_SIMPLE(name, size_t) = { \
+  PLUGIN_VAR_LONG | PLUGIN_VAR_UNSIGNED | ((opt) & PLUGIN_VAR_MASK), \
+  #name, comment, check, update, &varname, def, min, max, blk }
+#endif
 
 #define MYSQL_SYSVAR_ENUM(name, varname, opt, comment, check, update, def, typelib) \
 DECLARE_MYSQL_SYSVAR_TYPELIB(name, unsigned long) = { \

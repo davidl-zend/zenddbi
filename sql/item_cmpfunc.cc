@@ -286,20 +286,10 @@ longlong Item_func_not::val_int()
   return ((!null_value && value == 0) ? 1 : 0);
 }
 
-/*
-  We put any NOT expression into parenthesis to avoid
-  possible problems with internal view representations where
-  any '!' is converted to NOT. It may cause a problem if
-  '!' is used in an expression together with other operators
-  whose precedence is lower than the precedence of '!' yet
-  higher than the precedence of NOT.
-*/
-
 void Item_func_not::print(String *str, enum_query_type query_type)
 {
-  str->append('(');
-  Item_func::print(str, query_type);
-  str->append(')');
+  str->append('!');
+  args[0]->print_parenthesised(str, query_type, precedence());
 }
 
 /**
@@ -413,7 +403,7 @@ static bool convert_const_to_int(THD *thd, Item_field *field_item,
   if ((*item)->const_item() && !(*item)->is_expensive())
   {
     TABLE *table= field->table;
-    ulonglong orig_sql_mode= thd->variables.sql_mode;
+    sql_mode_t orig_sql_mode= thd->variables.sql_mode;
     enum_check_fields orig_count_cuted_fields= thd->count_cuted_fields;
     my_bitmap_map *old_maps[2];
     ulonglong UNINIT_VAR(orig_field_val); /* original field value if valid */
@@ -1181,8 +1171,7 @@ void Item_func_truth::fix_length_and_dec()
 
 void Item_func_truth::print(String *str, enum_query_type query_type)
 {
-  str->append('(');
-  args[0]->print(str, query_type);
+  args[0]->print_parenthesised(str, query_type, precedence());
   str->append(STRING_WITH_LEN(" is "));
   if (! affirmative)
     str->append(STRING_WITH_LEN("not "));
@@ -1190,7 +1179,6 @@ void Item_func_truth::print(String *str, enum_query_type query_type)
     str->append(STRING_WITH_LEN("true"));
   else
     str->append(STRING_WITH_LEN("false"));
-  str->append(')');
 }
 
 
@@ -1239,7 +1227,7 @@ void Item_in_optimizer::fix_after_pullout(st_select_lex *new_parent, Item **ref)
 }
 
 
-bool Item_in_optimizer::eval_not_null_tables(uchar *opt_arg)
+bool Item_in_optimizer::eval_not_null_tables(void *opt_arg)
 {
   not_null_tables_cache= 0;
   if (is_top_level_item())
@@ -1308,8 +1296,7 @@ bool Item_in_optimizer::fix_left(THD *thd)
     for (uint i= 0; i < n; i++)
     {
       /* Check that the expression (part of row) do not contain a subquery */
-      if (args[0]->element_index(i)->walk(&Item::is_subquery_processor,
-                                          FALSE, NULL))
+      if (args[0]->element_index(i)->walk(&Item::is_subquery_processor, 0, 0))
       {
         my_error(ER_NOT_SUPPORTED_YET, MYF(0),
                  "SUBQUERY in ROW in left expression of IN/ALL/ANY");
@@ -1738,7 +1725,7 @@ Item *Item_in_optimizer::transform(THD *thd, Item_transformer transformer,
 }
 
 
-bool Item_in_optimizer::is_expensive_processor(uchar *arg)
+bool Item_in_optimizer::is_expensive_processor(void *arg)
 {
   return args[0]->is_expensive_processor(arg) ||
          args[1]->is_expensive_processor(arg);
@@ -1867,8 +1854,8 @@ void Item_func_interval::fix_length_and_dec()
     }
 
     if (not_null_consts &&
-        (intervals=
-          (interval_range*) sql_alloc(sizeof(interval_range) * (rows - 1))))
+        (intervals= (interval_range*) current_thd->alloc(sizeof(interval_range) *
+                                                         (rows - 1))))
     {
       if (use_decimal_comparison)
       {
@@ -2034,7 +2021,7 @@ longlong Item_func_interval::val_int()
 */
 
 
-bool Item_func_between::eval_not_null_tables(uchar *opt_arg)
+bool Item_func_between::eval_not_null_tables(void *opt_arg)
 {
   if (Item_func_opt_neg::eval_not_null_tables(NULL))
     return 1;
@@ -2051,7 +2038,7 @@ bool Item_func_between::eval_not_null_tables(uchar *opt_arg)
 }  
 
 
-bool Item_func_between::count_sargable_conds(uchar *arg)
+bool Item_func_between::count_sargable_conds(void *arg)
 {
   SELECT_LEX *sel= (SELECT_LEX *) arg;
   sel->cond_count++;
@@ -2255,15 +2242,13 @@ longlong Item_func_between::val_int()
 
 void Item_func_between::print(String *str, enum_query_type query_type)
 {
-  str->append('(');
-  args[0]->print(str, query_type);
+  args[0]->print_parenthesised(str, query_type, precedence());
   if (negated)
     str->append(STRING_WITH_LEN(" not"));
   str->append(STRING_WITH_LEN(" between "));
-  args[1]->print(str, query_type);
+  args[1]->print_parenthesised(str, query_type, precedence());
   str->append(STRING_WITH_LEN(" and "));
-  args[2]->print(str, query_type);
-  str->append(')');
+  args[2]->print_parenthesised(str, query_type, precedence());
 }
 
 
@@ -2394,7 +2379,7 @@ Item_func_if::fix_fields(THD *thd, Item **ref)
 
 
 bool
-Item_func_if::eval_not_null_tables(uchar *opt_arg)
+Item_func_if::eval_not_null_tables(void *opt_arg)
 {
   if (Item_func::eval_not_null_tables(NULL))
     return 1;
@@ -2500,7 +2485,7 @@ bool Item_func_if::date_op(MYSQL_TIME *ltime, uint fuzzydate)
 }
 
 
-void Item_func_nullif::split_sum_func(THD *thd, Item **ref_pointer_array,
+void Item_func_nullif::split_sum_func(THD *thd, Ref_ptr_array ref_pointer_array,
                                       List<Item> &fields, uint flags)
 {
   if (m_cache)
@@ -2517,7 +2502,7 @@ void Item_func_nullif::split_sum_func(THD *thd, Item **ref_pointer_array,
 
 
 bool Item_func_nullif::walk(Item_processor processor,
-                            bool walk_subquery, uchar *arg)
+                            bool walk_subquery, void *arg)
 {
   /*
     No needs to iterate through args[2] when it's just a copy of args[0].
@@ -3356,27 +3341,27 @@ uint Item_func_case::decimal_precision() const
 
 void Item_func_case::print(String *str, enum_query_type query_type)
 {
-  str->append(STRING_WITH_LEN("(case "));
+  str->append(STRING_WITH_LEN("case "));
   if (first_expr_num != -1)
   {
-    args[first_expr_num]->print(str, query_type);
+    args[first_expr_num]->print_parenthesised(str, query_type, precedence());
     str->append(' ');
   }
   for (uint i=0 ; i < ncases ; i+=2)
   {
     str->append(STRING_WITH_LEN("when "));
-    args[i]->print(str, query_type);
+    args[i]->print_parenthesised(str, query_type, precedence());
     str->append(STRING_WITH_LEN(" then "));
-    args[i+1]->print(str, query_type);
+    args[i+1]->print_parenthesised(str, query_type, precedence());
     str->append(' ');
   }
   if (else_expr_num != -1)
   {
     str->append(STRING_WITH_LEN("else "));
-    args[else_expr_num]->print(str, query_type);
+    args[else_expr_num]->print_parenthesised(str, query_type, precedence());
     str->append(' ');
   }
-  str->append(STRING_WITH_LEN("end)"));
+  str->append(STRING_WITH_LEN("end"));
 }
 
 
@@ -3640,8 +3625,9 @@ bool in_vector::find(Item *item)
   return ((*compare)(collation, base+start*size, result) == 0);
 }
 
-in_string::in_string(uint elements,qsort2_cmp cmp_func, CHARSET_INFO *cs)
-  :in_vector(elements, sizeof(String), cmp_func, cs),
+in_string::in_string(THD *thd, uint elements, qsort2_cmp cmp_func,
+                     CHARSET_INFO *cs)
+  :in_vector(thd, elements, sizeof(String), cmp_func, cs),
    tmp(buff, sizeof(buff), &my_charset_bin)
 {}
 
@@ -3649,7 +3635,7 @@ in_string::~in_string()
 {
   if (base)
   {
-    // base was allocated with help of sql_alloc => following is OK
+    // base was allocated on THD::mem_root => following is OK
     for (uint i=0 ; i < count ; i++)
       ((String*) base)[i].free();
   }
@@ -3724,8 +3710,9 @@ void in_row::set(uint pos, Item *item)
   DBUG_VOID_RETURN;
 }
 
-in_longlong::in_longlong(uint elements)
-  :in_vector(elements,sizeof(packed_longlong),(qsort2_cmp) cmp_longlong, 0)
+in_longlong::in_longlong(THD *thd, uint elements)
+  :in_vector(thd, elements, sizeof(packed_longlong),
+             (qsort2_cmp) cmp_longlong, 0)
 {}
 
 void in_longlong::set(uint pos,Item *item)
@@ -3782,8 +3769,8 @@ Item *in_datetime::create_item(THD *thd)
 }
 
 
-in_double::in_double(uint elements)
-  :in_vector(elements,sizeof(double),(qsort2_cmp) cmp_double, 0)
+in_double::in_double(THD *thd, uint elements)
+  :in_vector(thd, elements, sizeof(double), (qsort2_cmp) cmp_double, 0)
 {}
 
 void in_double::set(uint pos,Item *item)
@@ -3805,8 +3792,8 @@ Item *in_double::create_item(THD *thd)
 }
 
 
-in_decimal::in_decimal(uint elements)
-  :in_vector(elements, sizeof(my_decimal),(qsort2_cmp) cmp_decimal, 0)
+in_decimal::in_decimal(THD *thd, uint elements)
+  :in_vector(thd, elements, sizeof(my_decimal), (qsort2_cmp) cmp_decimal, 0)
 {}
 
 
@@ -4059,7 +4046,7 @@ cmp_item *cmp_item_datetime::make_same()
 }
 
 
-bool Item_func_in::count_sargable_conds(uchar *arg)
+bool Item_func_in::count_sargable_conds(void *arg)
 {
   ((SELECT_LEX*) arg)->cond_count++;
   return 0;
@@ -4118,7 +4105,7 @@ Item_func_in::fix_fields(THD *thd, Item **ref)
 
 
 bool
-Item_func_in::eval_not_null_tables(uchar *opt_arg)
+Item_func_in::eval_not_null_tables(void *opt_arg)
 {
   Item **arg, **arg_end;
 
@@ -4150,7 +4137,7 @@ static int srtcmp_in(CHARSET_INFO *cs, const String *x,const String *y)
 {
   return cs->coll->strnncollsp(cs,
                                (uchar *) x->ptr(),x->length(),
-                               (uchar *) y->ptr(),y->length(), 0);
+                               (uchar *) y->ptr(),y->length());
 }
 
 void Item_func_in::fix_length_and_dec()
@@ -4282,14 +4269,15 @@ void Item_func_in::fix_length_and_dec()
     }
     switch (m_compare_type) {
     case STRING_RESULT:
-      array=new (thd->mem_root) in_string(arg_count-1,(qsort2_cmp) srtcmp_in, 
+      array=new (thd->mem_root) in_string(thd, arg_count - 1,
+                                          (qsort2_cmp) srtcmp_in,
                                           cmp_collation.collation);
       break;
     case INT_RESULT:
-      array= new (thd->mem_root) in_longlong(arg_count-1);
+      array= new (thd->mem_root) in_longlong(thd, arg_count - 1);
       break;
     case REAL_RESULT:
-      array= new (thd->mem_root) in_double(arg_count-1);
+      array= new (thd->mem_root) in_double(thd, arg_count - 1);
       break;
     case ROW_RESULT:
       /*
@@ -4300,11 +4288,11 @@ void Item_func_in::fix_length_and_dec()
       ((in_row*)array)->tmp.store_value(args[0]);
       break;
     case DECIMAL_RESULT:
-      array= new (thd->mem_root) in_decimal(arg_count - 1);
+      array= new (thd->mem_root) in_decimal(thd, arg_count - 1);
       break;
     case TIME_RESULT:
       date_arg= find_date_time_item(args, arg_count, 0);
-      array= new (thd->mem_root) in_datetime(date_arg, arg_count - 1);
+      array= new (thd->mem_root) in_datetime(thd, date_arg, arg_count - 1);
       break;
     }
     if (!array || thd->is_fatal_error)		// OOM
@@ -4351,13 +4339,12 @@ void Item_func_in::fix_length_and_dec()
 
 void Item_func_in::print(String *str, enum_query_type query_type)
 {
-  str->append('(');
-  args[0]->print(str, query_type);
+  args[0]->print_parenthesised(str, query_type, precedence());
   if (negated)
     str->append(STRING_WITH_LEN(" not"));
   str->append(STRING_WITH_LEN(" in ("));
   print_args(str, 1, query_type);
-  str->append(STRING_WITH_LEN("))"));
+  str->append(STRING_WITH_LEN(")"));
 }
 
 
@@ -4622,7 +4609,7 @@ Item_cond::fix_fields(THD *thd, Item **ref)
 
 
 bool
-Item_cond::eval_not_null_tables(uchar *opt_arg)
+Item_cond::eval_not_null_tables(void *opt_arg)
 {
   Item *item;
   List_iterator<Item> li(list);
@@ -4693,7 +4680,7 @@ void Item_cond::fix_after_pullout(st_select_lex *new_parent, Item **ref)
 }
 
 
-bool Item_cond::walk(Item_processor processor, bool walk_subquery, uchar *arg)
+bool Item_cond::walk(Item_processor processor, bool walk_subquery, void *arg)
 {
   List_iterator_fast<Item> li(list);
   Item *item;
@@ -4702,17 +4689,6 @@ bool Item_cond::walk(Item_processor processor, bool walk_subquery, uchar *arg)
       return 1;
   return Item_func::walk(processor, walk_subquery, arg);
 }
-
-bool Item_cond_and::walk_top_and(Item_processor processor, uchar *arg)
-{
-  List_iterator_fast<Item> li(list);
-  Item *item;
-  while ((item= li++))
-    if (item->walk_top_and(processor, arg))
-      return 1;
-  return Item_cond::walk_top_and(processor, arg);
-}
-
 
 /**
   Transform an Item_cond object with a transformer callback function.
@@ -4867,7 +4843,7 @@ void Item_cond::traverse_cond(Cond_traverser traverser,
     that have or refer (HAVING) to a SUM expression.
 */
 
-void Item_cond::split_sum_func(THD *thd, Item **ref_pointer_array,
+void Item_cond::split_sum_func(THD *thd, Ref_ptr_array ref_pointer_array,
                                List<Item> &fields, uint flags)
 {
   List_iterator<Item> li(list);
@@ -4887,19 +4863,17 @@ Item_cond::used_tables() const
 
 void Item_cond::print(String *str, enum_query_type query_type)
 {
-  str->append('(');
   List_iterator_fast<Item> li(list);
   Item *item;
   if ((item=li++))
-    item->print(str, query_type);
+    item->print_parenthesised(str, query_type, precedence());
   while ((item=li++))
   {
     str->append(' ');
     str->append(func_name());
     str->append(' ');
-    item->print(str, query_type);
+    item->print_parenthesised(str, query_type, precedence());
   }
-  str->append(')');
 }
 
 
@@ -4917,6 +4891,43 @@ void Item_cond::neg_arguments(THD *thd)
     }
     (void) li.replace(new_item);
   }
+}
+
+
+/**
+  @brief
+    Building clone for Item_cond
+    
+  @param thd        thread handle
+  @param mem_root   part of the memory for the clone   
+
+  @details
+    This method gets copy of the current item and also 
+    build clones for its elements. For this elements 
+    build_copy is called again.
+      
+   @retval
+     clone of the item
+     0 if an error occured
+*/ 
+
+Item *Item_cond::build_clone(THD *thd, MEM_ROOT *mem_root)
+{
+  List_iterator_fast<Item> li(list);
+  Item *item;
+  Item_cond *copy= (Item_cond *) get_copy(thd, mem_root);
+  if (!copy)
+    return 0;
+  copy->list.empty();
+  while ((item= li++))
+  {
+    Item *arg_clone= item->build_clone(thd, mem_root);
+    if (!arg_clone)
+      return 0;
+    if (copy->list.push_back(arg_clone, mem_root))
+      return 0;
+  }
+  return copy;
 }
 
 
@@ -5038,7 +5049,7 @@ Item *and_expressions(THD *thd, Item *a, Item *b, Item **org_item)
 }
 
 
-bool Item_func_null_predicate::count_sargable_conds(uchar *arg)
+bool Item_func_null_predicate::count_sargable_conds(void *arg)
 {
   ((SELECT_LEX*) arg)->cond_count++;
   return 0;
@@ -5051,6 +5062,13 @@ longlong Item_func_isnull::val_int()
   if (const_item() && !args[0]->maybe_null)
     return 0;
   return args[0]->is_null() ? 1: 0;
+}
+
+
+void Item_func_isnull::print(String *str, enum_query_type query_type)
+{
+  args[0]->print_parenthesised(str, query_type, precedence());
+  str->append(STRING_WITH_LEN(" is null"));
 }
 
 
@@ -5091,16 +5109,31 @@ longlong Item_func_isnotnull::val_int()
 
 void Item_func_isnotnull::print(String *str, enum_query_type query_type)
 {
-  str->append('(');
-  args[0]->print(str, query_type);
-  str->append(STRING_WITH_LEN(" is not null)"));
+  args[0]->print_parenthesised(str, query_type, precedence());
+  str->append(STRING_WITH_LEN(" is not null"));
 }
 
 
-bool Item_bool_func2::count_sargable_conds(uchar *arg)
+bool Item_bool_func2::count_sargable_conds(void *arg)
 {
   ((SELECT_LEX*) arg)->cond_count++;
   return 0;
+}
+
+void Item_func_like::print(String *str, enum_query_type query_type)
+{
+  args[0]->print_parenthesised(str, query_type, precedence());
+  str->append(' ');
+  if (negated)
+    str->append(STRING_WITH_LEN(" not "));
+  str->append(func_name());
+  str->append(' ');
+  args[1]->print_parenthesised(str, query_type, precedence());
+  if (escape_used_in_parsing)
+  {
+    str->append(STRING_WITH_LEN(" escape "));
+    escape_item->print(str, query_type);
+  }
 }
 
 
@@ -5121,11 +5154,11 @@ longlong Item_func_like::val_int()
   }
   null_value=0;
   if (canDoTurboBM)
-    return turboBM_matches(res->ptr(), res->length()) ? 1 : 0;
+    return turboBM_matches(res->ptr(), res->length()) ? !negated : negated;
   return my_wildcmp(cmp_collation.collation,
 		    res->ptr(),res->ptr()+res->length(),
 		    res2->ptr(),res2->ptr()+res2->length(),
-		    escape,wild_one,wild_many) ? 0 : 1;
+		    escape,wild_one,wild_many) ? negated : !negated;
 }
 
 
@@ -5135,6 +5168,9 @@ longlong Item_func_like::val_int()
 
 bool Item_func_like::with_sargable_pattern() const
 {
+  if (negated)
+    return false;
+
   if (!args[1]->const_item() || args[1]->is_expensive())
     return false;
 
@@ -5163,13 +5199,10 @@ SEL_TREE *Item_func_like::get_mm_tree(RANGE_OPT_PARAM *param, Item **cond_ptr)
 }
 
 
-bool Item_func_like::fix_fields(THD *thd, Item **ref)
+bool fix_escape_item(THD *thd, Item *escape_item, String *tmp_str,
+                     bool escape_used_in_parsing, CHARSET_INFO *cmp_cs,
+                     int *escape)
 {
-  DBUG_ASSERT(fixed == 0);
-  if (Item_bool_func2::fix_fields(thd, ref) ||
-      escape_item->fix_fields(thd, &escape_item))
-    return TRUE;
-
   if (!escape_item->const_during_execution())
   {
     my_error(ER_WRONG_ARGUMENTS,MYF(0),"ESCAPE");
@@ -5179,7 +5212,7 @@ bool Item_func_like::fix_fields(THD *thd, Item **ref)
   if (escape_item->const_item())
   {
     /* If we are on execution stage */
-    String *escape_str= escape_item->val_str(&cmp_value1);
+    String *escape_str= escape_item->val_str(tmp_str);
     if (escape_str)
     {
       const char *escape_str_ptr= escape_str->ptr();
@@ -5192,7 +5225,7 @@ bool Item_func_like::fix_fields(THD *thd, Item **ref)
         return TRUE;
       }
 
-      if (use_mb(cmp_collation.collation))
+      if (use_mb(cmp_cs))
       {
         CHARSET_INFO *cs= escape_str->charset();
         my_wc_t wc;
@@ -5200,7 +5233,7 @@ bool Item_func_like::fix_fields(THD *thd, Item **ref)
                                 (const uchar*) escape_str_ptr,
                                 (const uchar*) escape_str_ptr +
                                 escape_str->length());
-        escape= (int) (rc > 0 ? wc : '\\');
+        *escape= (int) (rc > 0 ? wc : '\\');
       }
       else
       {
@@ -5209,25 +5242,40 @@ bool Item_func_like::fix_fields(THD *thd, Item **ref)
           code instead of Unicode code as "escape" argument.
           Convert to "cs" if charset of escape differs.
         */
-        CHARSET_INFO *cs= cmp_collation.collation;
         uint32 unused;
         if (escape_str->needs_conversion(escape_str->length(),
-                                         escape_str->charset(), cs, &unused))
+                                         escape_str->charset(),cmp_cs,&unused))
         {
           char ch;
           uint errors;
-          uint32 cnvlen= copy_and_convert(&ch, 1, cs, escape_str_ptr,
+          uint32 cnvlen= copy_and_convert(&ch, 1, cmp_cs, escape_str_ptr,
                                           escape_str->length(),
                                           escape_str->charset(), &errors);
-          escape= cnvlen ? ch : '\\';
+          *escape= cnvlen ? ch : '\\';
         }
         else
-          escape= escape_str_ptr ? *escape_str_ptr : '\\';
+          *escape= escape_str_ptr ? *escape_str_ptr : '\\';
       }
     }
     else
-      escape= '\\';
+      *escape= '\\';
+  }
 
+  return FALSE;
+}
+
+
+bool Item_func_like::fix_fields(THD *thd, Item **ref)
+{
+  DBUG_ASSERT(fixed == 0);
+  if (Item_bool_func2::fix_fields(thd, ref) ||
+      escape_item->fix_fields(thd, &escape_item) ||
+      fix_escape_item(thd, escape_item, &cmp_value1, escape_used_in_parsing,
+                      cmp_collation.collation, &escape))
+    return TRUE;
+
+  if (escape_item->const_item())
+  {
     /*
       We could also do boyer-more for non-const items, but as we would have to
       recompute the tables for each row it's not worth it.
@@ -5283,7 +5331,7 @@ void Item_func_like::cleanup()
 }
 
 
-bool Item_func_like::find_selective_predicates_list_processor(uchar *arg)
+bool Item_func_like::find_selective_predicates_list_processor(void *arg)
 {
   find_selective_predicates_list_processor_data *data=
     (find_selective_predicates_list_processor_data *) arg;
@@ -5309,6 +5357,15 @@ bool Item_func_like::find_selective_predicates_list_processor(uchar *arg)
 int Regexp_processor_pcre::default_regex_flags()
 {
   return default_regex_flags_pcre(current_thd);
+}
+
+void Regexp_processor_pcre::set_recursion_limit(THD *thd)
+{
+  long stack_used;
+  DBUG_ASSERT(thd == current_thd);
+  stack_used= available_stack_size(thd->thread_stack, &stack_used);
+  m_pcre_extra.match_limit_recursion=
+    (my_thread_stack_size - stack_used)/my_pcre_frame_size;
 }
 
 
@@ -5351,9 +5408,8 @@ bool Regexp_processor_pcre::compile(String *pattern, bool send_error)
   {
     if (!stringcmp(pattern, &m_prev_pattern))
       return false;
+    cleanup();
     m_prev_pattern.copy(*pattern);
-    pcre_free(m_pcre);
-    m_pcre= NULL;
   }
 
   if (!(pattern= convert_if_needed(pattern, &pattern_converter)))
@@ -5402,14 +5458,76 @@ void Regexp_processor_pcre::pcre_exec_warn(int rc) const
   */
   switch (rc)
   {
+  case PCRE_ERROR_NULL:
+    errmsg= "pcre_exec: null arguement passed";
+    break;
+  case PCRE_ERROR_BADOPTION:
+    errmsg= "pcre_exec: bad option";
+    break;
+  case PCRE_ERROR_BADMAGIC:
+    errmsg= "pcre_exec: bad magic - not a compiled regex";
+    break;
+  case PCRE_ERROR_UNKNOWN_OPCODE:
+    errmsg= "pcre_exec: error in compiled regex";
+    break;
   case PCRE_ERROR_NOMEMORY:
     errmsg= "pcre_exec: Out of memory";
+    break;
+  case PCRE_ERROR_NOSUBSTRING:
+    errmsg= "pcre_exec: no substring";
+    break;
+  case PCRE_ERROR_MATCHLIMIT:
+    errmsg= "pcre_exec: match limit exceeded";
+    break;
+  case PCRE_ERROR_CALLOUT:
+    errmsg= "pcre_exec: callout error";
     break;
   case PCRE_ERROR_BADUTF8:
     errmsg= "pcre_exec: Invalid utf8 byte sequence in the subject string";
     break;
+  case PCRE_ERROR_BADUTF8_OFFSET:
+    errmsg= "pcre_exec: Started at invalid location within utf8 byte sequence";
+    break;
+  case PCRE_ERROR_PARTIAL:
+    errmsg= "pcre_exec: partial match";
+    break;
+  case PCRE_ERROR_INTERNAL:
+    errmsg= "pcre_exec: internal error";
+    break;
+  case PCRE_ERROR_BADCOUNT:
+    errmsg= "pcre_exec: ovesize is negative";
+    break;
+  case PCRE_ERROR_RECURSIONLIMIT:
+    my_snprintf(buf, sizeof(buf), "pcre_exec: recursion limit of %ld exceeded",
+                m_pcre_extra.match_limit_recursion);
+    errmsg= buf;
+    break;
+  case PCRE_ERROR_BADNEWLINE:
+    errmsg= "pcre_exec: bad newline options";
+    break;
+  case PCRE_ERROR_BADOFFSET:
+    errmsg= "pcre_exec: start offset negative or greater than string length";
+    break;
+  case PCRE_ERROR_SHORTUTF8:
+    errmsg= "pcre_exec: ended in middle of utf8 sequence";
+    break;
+  case PCRE_ERROR_JIT_STACKLIMIT:
+    errmsg= "pcre_exec: insufficient stack memory for JIT compile";
+    break;
   case PCRE_ERROR_RECURSELOOP:
     errmsg= "pcre_exec: Recursion loop detected";
+    break;
+  case PCRE_ERROR_BADMODE:
+    errmsg= "pcre_exec: compiled pattern passed to wrong bit library function";
+    break;
+  case PCRE_ERROR_BADENDIANNESS:
+    errmsg= "pcre_exec: compiled pattern passed to wrong endianness processor";
+    break;
+  case PCRE_ERROR_JIT_BADOPTION:
+    errmsg= "pcre_exec: bad jit option";
+    break;
+  case PCRE_ERROR_BADLENGTH:
+    errmsg= "pcre_exec: negative length";
     break;
   default:
     /*
@@ -5446,8 +5564,8 @@ int Regexp_processor_pcre::pcre_exec_with_warn(const pcre *code,
 
 bool Regexp_processor_pcre::exec(const char *str, int length, int offset)
 {
-  m_pcre_exec_rc= pcre_exec_with_warn(m_pcre, NULL, str, length, offset, 0,
-                                      m_SubStrVec, m_subpatterns_needed * 3);
+  m_pcre_exec_rc= pcre_exec_with_warn(m_pcre, &m_pcre_extra, str, length, offset, 0,
+                                      m_SubStrVec, array_elements(m_SubStrVec));
   return false;
 }
 
@@ -5457,10 +5575,10 @@ bool Regexp_processor_pcre::exec(String *str, int offset,
 {
   if (!(str= convert_if_needed(str, &subject_converter)))
     return true;
-  m_pcre_exec_rc= pcre_exec_with_warn(m_pcre, NULL,
+  m_pcre_exec_rc= pcre_exec_with_warn(m_pcre, &m_pcre_extra,
                                       str->c_ptr_safe(), str->length(),
                                       offset, 0,
-                                      m_SubStrVec, m_subpatterns_needed * 3);
+                                      m_SubStrVec, array_elements(m_SubStrVec));
   if (m_pcre_exec_rc > 0)
   {
     uint i;
@@ -5518,7 +5636,7 @@ Item_func_regex::fix_length_and_dec()
   if (agg_arg_charsets_for_comparison(cmp_collation, args, 2))
     return;
 
-  re.init(cmp_collation.collation, 0, 0);
+  re.init(cmp_collation.collation, 0);
   re.fix_owner(this, args[0], args[1]);
 }
 
@@ -5542,7 +5660,7 @@ Item_func_regexp_instr::fix_length_and_dec()
   if (agg_arg_charsets_for_comparison(cmp_collation, args, 2))
     return;
 
-  re.init(cmp_collation.collation, 0, 1);
+  re.init(cmp_collation.collation, 0);
   re.fix_owner(this, args[0], args[1]);
 }
 
@@ -6513,7 +6631,7 @@ void Item_equal::update_used_tables()
 }
 
 
-bool Item_equal::count_sargable_conds(uchar *arg)
+bool Item_equal::count_sargable_conds(void *arg)
 {
   SELECT_LEX *sel= (SELECT_LEX *) arg;
   uint m= equal_items.elements;
@@ -6579,7 +6697,7 @@ void Item_equal::fix_length_and_dec()
 }
 
 
-bool Item_equal::walk(Item_processor processor, bool walk_subquery, uchar *arg)
+bool Item_equal::walk(Item_processor processor, bool walk_subquery, void *arg)
 {
   Item *item;
   Item_equal_fields_iterator it(*this);
@@ -6808,10 +6926,9 @@ longlong Item_func_dyncol_exists::val_int()
     }
     else
     {
-      uint strlen;
+      uint strlen= nm->length() * my_charset_utf8_general_ci.mbmaxlen + 1;
       uint dummy_errors;
-      buf.str= (char *)sql_alloc((strlen= nm->length() *
-                                     my_charset_utf8_general_ci.mbmaxlen + 1));
+      buf.str= (char *) current_thd->alloc(strlen);
       if (buf.str)
       {
         buf.length=

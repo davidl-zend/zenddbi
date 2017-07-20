@@ -157,6 +157,7 @@ int maria_extra(MARIA_HA *info, enum ha_extra_function function,
     if (info->s->data_file_type != DYNAMIC_RECORD)
       break;
     /* Remove read/write cache if dynamic rows */
+    /* fall through */
   case HA_EXTRA_NO_CACHE:
     if (info->opt_flag & (READ_CACHE_USED | WRITE_CACHE_USED))
     {
@@ -313,12 +314,13 @@ int maria_extra(MARIA_HA *info, enum ha_extra_function function,
     share->state.open_count= 1;
     share->changed= 1;
     _ma_mark_file_changed_now(share);
-    /* Fall trough */
+    /* Fall through */
   case HA_EXTRA_PREPARE_FOR_RENAME:
   {
     my_bool do_flush= MY_TEST(function != HA_EXTRA_PREPARE_FOR_DROP);
     my_bool save_global_changed;
     enum flush_type type;
+    DBUG_ASSERT(!share->temporary);
     /*
       This share, to have last_version=0, needs to save all its data/index
       blocks to disk if this is not for a DROP TABLE. Otherwise they would be
